@@ -40,11 +40,10 @@ class eDemoSSO {
     $this->sslverify = get_option('eDemoSSO_sslverify');
         
     add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
-    add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
 
     add_filter( 'query_vars', array( $this, 'query_vars' ) );
     add_filter( 'the_content', array( $this, 'the_content_filter' ) );
-  
+
     register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
     register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivation' ) );
     add_action( 'parse_request', array( $this, 'parse_request' ) );
@@ -187,38 +186,75 @@ class eDemoSSO {
 		$wp_rewrite->flush_rules(); // force call to generate_rewrite_rules()
 	}
 
-	function  pre_get_posts($query) {
-		$query->is_home = FALSE;
-	}
-
   function parse_request( &$wp )
   {
     if ( array_key_exists( self::QUERY_VAR, $wp->query_vars ) ) {
-        
-        $this->auth_message=$this->callback_process();
-        if (isset($_GET[self::WP_REDIR_VAR])) wp_redirect($_GET[self::WP_REDIR_VAR.'']);
-        else wp_redirect('/');
-        exit();
+         if (isset($_GET[self::WP_REDIR_VAR])) {
+          $_SERVER['REQUEST_URI']="/". $_GET[self::WP_REDIR_VAR]."?SSO_code=".$_GET['code'] ;
+          $wp->parse_request();
+        }
     }
+    if ( array_key_exists( 'SSO_code', $_GET) ) {
+        $this->auth_message=$this->callback_process();
+     }
     return;
   }	
   
-  // auth process massages putting before displaying the title
-  function the_content_filter($content) {
-    echo "<div class='updated fade'><p>Hiba:".$this->error_message."</p></div>";
+  //
+  // displaying auth error message in the top of content
+  //
+  
+  // we will found out what is the best way to display this (pop-up or anithing else) 
+  
+  function the_content_filter( $content ) {
+    echo "<div class='updated '><p>".$this->auth_message."</p></div>";
     return $content;
   }
 
-	function   query_vars($public_query_vars) { 
+  //
+  // our query var filter adds the SSO query var to the query. Used for identifying the call of the callback url.
+  //
+
+	function query_vars( $public_query_vars ) { 
 		array_push( $public_query_vars, self::QUERY_VAR );
 		return $public_query_vars;
 	}
+  
+  //
+  // Commumication with oauth server
+  //
+
+  // The main callback function controlls the whole authentication process
+   
+  function callback_process() {
+
+    if (isset($_GET['SSO_code'])) {
+      if ( $token = $this->requestToken( $_GET['SSO_code'] ) ) {
+        if ( $user_data = $this->requestUserData( $token['access_token'] ) ) {
+          if ( $ssoUser=get_users(array('meta_key' => self::USERMETA, 'meta_value' => $user_data['userid'])) ) {
+           $user=$ssoUser[0]->data;
+          }
+          else {
+            $user=$this->registerUser($user_data) ;
+          }
+          if ($user) {
+            $this->signinUser($user);
+            $this->error_message= __('You are signed in');
+          }
+        }
+      }
+    }
+    else $this->error_message = __('Invalid page request - missing code');
+    return $this->error_message;
+  }
+  
+  // token requesting phase
   
   function requestToken( $code ) {
   
     $response = wp_remote_post( 'https://'.self::SSO_TOKEN_URI, array(
                  'method' => 'POST',
-                'timeout' => 45,
+                'timeout' => 30,
             'redirection' => 10,
 	          'httpversion' => '1.0',
 	             'blocking' => true,
@@ -237,18 +273,24 @@ class eDemoSSO {
     }
     else {
       $body = json_decode( $response['body'], true );
-      if ( isset( $body['error'] ) ) {
-        $this->error_message = "The SSO-server's response: ". $body['error'];
-        return false;
+      if (!empty($body)){
+        if ( isset( $body['error'] ) ) {
+          $this->error_message = __("The SSO-server's response: "). $body['error'];
+          return false;
+        }
+        else return $body;
       }
-      else return $body;
+        $this->error_message = __("Unexpected response cames from SSO Server");
+        return false;
     }
   }
+  
+  // user data requesting phase, called if we have a valid token
   
   function requestUserData( $access_token ) {
   
     $response = wp_remote_get( 'https://'.self::SSO_USER_URI, array(
-                    'timeout' => 45,
+                    'timeout' => 30,
                 'redirection' => 10,
                 'httpversion' => '1.0',
                    'blocking' => true,
@@ -259,18 +301,26 @@ class eDemoSSO {
       $this->error_message = $response->get_error_message();
       return false;
     }
-    else return json_decode( $response['body'], true );
+    elseif ( isset( $response['body'] ) ) {
+        $body = json_decode( $response['body'], true );
+        if (!empty($body)) return $body;
+      }
+      $this->error_message=__("Invalid response has been came from SSO server");
+      return false;
   }
   
+  //
+  //  Wordpress User function
+  //
+  
+  //  Registering the new user
+  
   function registerUser($user_data){
-    // updating if user  alredy exist with this email 
+    // updating if user already exist with this email 
+    // this function will be removed due security reason !!!
      if ( $ssoUser=get_users(array('search' => $user_data['email'])) ){
         $user=$ssoUser[0]->data;
-//        echo 'found by email: <pre>';
-//        print_r ($user);
-//        echo '</pre>';
         update_user_meta( $user->ID, self::USERMETA, $user_data['userid'] );
-//        echo '<p>user updated </p>';
      }
      // registering new user
      else {
@@ -279,60 +329,22 @@ class eDemoSSO {
                                           'user_email' => $user_data['email'],
                                           'display_name' => $display_name[0],
                                           'role' => self::USER_ROLE ));
-
-//On success
-        if( !is_wp_error($user_id) ) {
-        update_user_meta( $user_id, self::USERMETA, $user_data['userid'] );
-//        echo "User created : ". $user_id;
-        }
+      //On success
+        if( !is_wp_error($user_id) ) update_user_meta( $user_id, self::USERMETA, $user_data['userid'] );
         else $this->error_message=$user_id->get_error_message();     
      }
-     //loggin in
   }
+  
+  //  Logging in the user
   
   function signinUser($user) {
     wp_set_current_user( $user->ID, $user->user_login );
     wp_set_auth_cookie( $user->ID );
     do_action( 'wp_login', $user->user_login );
   }
-  
-  function callback_process() {
-
-    if (isset($_GET['code'])) {
-      if ( $token = $this->requestToken( $_GET['code'] ) ) {
-//        echo "The SSO-server's response to the token request <pre>";
-//        print_r ($token);
-//        echo '</pre>
-//        <p>Trying to get user data</p>';
-        if ( $user_data = $this->requestUserData( $token['access_token'] ) ) {
-//         echo '<p>User data:</p>';
-//          echo '<pre>';
-//          print_r ( $user_data );
-//          echo '</pre>';
-//          echo '<p>Searching for user according SSO-ID: ';
-          if ( $ssoUser=get_users(array('meta_key' => self::USERMETA, 'meta_value' => $user_data['userid'])) ) {
-           $user=$ssoUser[0]->data;
-//           echo "Succes </p><pre>";
-//           print_r ($ssoUser);
-//           echo "</pre>";
-          }
-          else {
-//            echo '<p>Registering new user: ';
-            $user=$this->registerUser($user_data) ;
-          }
-          if ($user) {
-            $this->signinUser($user);
-           $this->error_message= __('You are signed in');
-          }
-        }
-      }
-    }
-    else $this->error_message = "Invalid page request - missing code";
-    return $this->error_message;
-  }
-
-  
+   
 } // end of class declaration
 	
-$eDemoSSO = new eDemoSSO();
+if (!isset($eDemoSSO)) { $eDemoSSO = new eDemoSSO(); } 
+
 ?>
