@@ -11,9 +11,9 @@
 class eDemoSSO {
  
 	const    SSO_DOMAIN = 'sso.edemokraciagep.org';
-	const SSO_TOKEN_URI = '81.7.7.18/v1/oauth2/token';
-	const  SSO_AUTH_URI = '81.7.7.18/v1/oauth2/auth';
-	const  SSO_USER_URI = '81.7.7.18/v1/users/me';
+	const SSO_TOKEN_URI = 'sso.edemokraciagep.org/v1/oauth2/token';
+	const  SSO_AUTH_URI = 'sso.edemokraciagep.org/v1/oauth2/auth';
+	const  SSO_USER_URI = 'sso.edemokraciagep.org/v1/users/me';
 	const     QUERY_VAR = 'sso_callback';
 	const     USER_ROLE = 'eDemo_SSO_role';
 	const  CALLBACK_URI = 'sso_callback';
@@ -147,13 +147,38 @@ class eDemoSSO {
 	//
 	// Actual functionality
 	//
+	
+  // shortcode for 'sign it' function
+ 	// [SSOsignit text="Sign it if you agree with" thanks="Thank you" signed="Has been signed"]
+	
+  function sign_it( $atts )	{
+    $a = shortcode_atts( array(
+        'text'   => 'Sign it if you agree with',
+        'thanks' => 'Thanks for your sign',
+        'signed' => 'You signed yet, thanks',
+          ), $atts );
 
-
-	function sign_it()
-	{
-		
+    if ( !is_user_logged_in() ) {
+      return '<a href="https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.'&redirect_uri='.urlencode($this->callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'"><div class="btn">'.$a['text'].'</div></a>';
+    }
+    elseif ( isset( $_GET['signed'] ) ) {
+      if ($this->is_signed()) return '<div class="button SSO_signed">'.$a['signed'].'</div>';
+      else {
+        $this->do_sign_it();
+        return '<div class="button SSO_signed">'.$a['thanks'].'</div>';
+      }
+    } 
+    return '<a href="'.$_SERVER['REQUEST_URI'].'?signed=true"><div class="btn">'.$a['text'].'</div></a>';
 	}
 
+  // saving the signing event in database
+  function do_sign_it(){}
+  
+  // checking if is it signed yet
+  function is_signed(){ 
+    return true ;
+  }
+  
 	//
 	// Hooks
 	//
@@ -190,7 +215,10 @@ class eDemoSSO {
   {
     if ( array_key_exists( self::QUERY_VAR, $wp->query_vars ) ) {
          if (isset($_GET[self::WP_REDIR_VAR])) {
-          $_SERVER['REQUEST_URI']="/". $_GET[self::WP_REDIR_VAR]."?SSO_code=".$_GET['code'] ;
+          $_SERVER['REQUEST_URI']="/". $_GET[self::WP_REDIR_VAR]."?SSO_code=".$_GET['code'].(isset($_GET['signed'])?'&signed=true':'') ;
+
+          error_log($_GET[self::WP_REDIR_VAR]);
+          
           $wp->parse_request();
         }
     }
