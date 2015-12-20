@@ -3,10 +3,13 @@
 		Plugin Name: Edemo SSO authentication
 		Plugin URI: 
 		Description: Allows you connect to the Edemo SSO server, and autenticate the users, who acting on your site
-		Version: 0.0.1
+		Version: 0.01
 		Author: Claymanus
 		Author URI:
 	*/
+
+### Version
+define( 'EDEMO_SSO_VERSION', 0.01 );
 
 class eDemoSSO {
  
@@ -29,26 +32,40 @@ class eDemoSSO {
 	
 	function __construct() {
 
-    add_option('eDemoSSO_appkey', '', '', 'yes');
-    add_option('eDemoSSO_secret', '', '', 'yes');
-    add_option('eDemoSSO_appname', '', '', 'yes');
-    add_option('eDemoSSO_sslverify', '', '', 'yes');
+		add_option('eDemoSSO_appkey', '', '', 'yes');
+		add_option('eDemoSSO_secret', '', '', 'yes');
+		add_option('eDemoSSO_appname', '', '', 'yes');
+		add_option('eDemoSSO_sslverify', '', '', 'yes');
     
-    $this->callbackURL = get_site_url( "", "", "https" )."/".self::CALLBACK_URI;
-    $this->appkey = get_option('eDemoSSO_appkey');
-    $this->secret = get_option('eDemoSSO_secret');
-    $this->sslverify = get_option('eDemoSSO_sslverify');
+		$this->callbackURL = get_site_url( "", "", "https" )."/".self::CALLBACK_URI;
+		$this->appkey = get_option('eDemoSSO_appkey');
+		$this->secret = get_option('eDemoSSO_secret');
+		$this->sslverify = get_option('eDemoSSO_sslverify');
         
-    add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
+		
+		### Adding sso callback function to rewrite rules
+		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
 
-    add_filter( 'query_vars', array( $this, 'query_vars' ) );
-    add_filter( 'the_content', array( $this, 'the_content_filter' ) );
+		add_filter( 'query_vars', array( $this, 'query_vars' ) );
+		add_filter( 'the_content', array( $this, 'the_content_filter' ) );
 
-    register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
-    register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivation' ) );
-    add_action( 'parse_request', array( $this, 'parse_request' ) );
-    add_shortcode('SSOsignit', array( $this, 'sign_it' ) );	
-    add_action('admin_menu', array( $this, 'addAdminPage' ) );
+		### Plugin activation hooks
+		register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivation' ) );
+		
+		
+		add_action( 'parse_request', array( $this, 'parse_request' ) );
+		add_shortcode('SSOsignit', array( $this, 'sign_it' ) );	
+		
+		### Adding admin page
+		add_action('admin_menu', array( $this, 'addAdminPage' ) );
+
+		### Create Text Domain For Translations
+		add_action( 'plugins_loaded', array( $this, 'textdomain' ) );
+	}
+
+	function textdomain() {
+		load_plugin_textdomain( 'eDemoSSO' );
 	}
 	
 	//
@@ -68,11 +85,11 @@ class eDemoSSO {
 		if (isset($_POST['edemosso_update'])) {
 //			check_admin_referer();    // EZT MAJD MEG KELLENE NÉZNI !!!!!
 
-			// Update SSO application 
+			// Update options 
 			$this->sslverify = isset($_POST['EdemoSSO_sslverify']);
 			$this->appkey    = $_POST['EdemoSSO_appkey'];
-      $this->secret    = $_POST['EdemoSSO_secret'];
-      $this->appname   = $_POST['EdemoSSO_appname'];
+			$this->secret    = $_POST['EdemoSSO_secret'];
+			$this->appname   = $_POST['EdemoSSO_appname'];
 			update_option( 'eDemoSSO_appkey'   , $this->appkey   );
 			update_option( 'eDemoSSO_secret'   , $this->secret   );
 			update_option( 'eDemoSSO_appname'  , $this->appname  );
@@ -158,8 +175,8 @@ class eDemoSSO {
         'signed' => 'You signed yet, thanks',
           ), $atts );
 
-    if ( !is_user_logged_in() ) {
-      return '<a href="https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.'&redirect_uri='.urlencode($this->callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'"><div class="btn">'.$a['text'].'</div></a>';
+	if ( !is_user_logged_in() ) {
+		return '<a href="https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.'&redirect_uri='.urlencode($this->callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'"><div class="btn">'.$a['text'].'</div></a>';
     }
     elseif ( isset( $_GET['signed'] ) ) {
       if ($this->is_signed()) return '<div class="button SSO_signed">'.$a['signed'].'</div>';
@@ -188,7 +205,7 @@ class eDemoSSO {
 		global $wp_rewrite;
 		$rules = array( self::CALLBACK_URI.'(.+?)$' => 'index.php$matches[1]&'.self::CALLBACK_URI.'=true',
                     self::CALLBACK_URI.'$'      => 'index.php?'.self::CALLBACK_URI.'=true&'  );
-	$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
+		$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
 	}
 
 	function plugin_activation() {
@@ -332,9 +349,9 @@ class eDemoSSO {
     elseif ( isset( $response['body'] ) ) {
         $body = json_decode( $response['body'], true );
         if (!empty($body)) return $body;
-      }
-      $this->error_message=__("Invalid response has been came from SSO server");
-      return false;
+    }
+	$this->error_message=__("Invalid response has been came from SSO server");
+    return false;
   }
   
   //
