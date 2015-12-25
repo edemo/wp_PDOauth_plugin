@@ -3,3 +3,4 @@ Ez egy wordpress plugin. Segítségével az eDemo SSO autentikációs szolgáltatást i
 Shortcode szavazógomb definiálásához:
 [SSOsignit text="Kérem írja alá" thanks="Köszönöm, hogy aláírta" signed="Ön már korábban aláírta"]
 
+---
