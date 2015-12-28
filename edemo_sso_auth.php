@@ -3,12 +3,13 @@
 		Plugin Name: eDemo SSO authentication
 		Plugin URI: 
 		Description: Allows you connect to the Edemo SSO server, and autenticate the users, who acting on your site
-		Version: 0.01
+		Version: 0.02
 		Author: Claymanus
 		Author URI:
 		Text Domain: eDemo-SSO
-		Domain Path: /languages/
+		Domain Path: /languages
 	*/
+
 ### Version
 define( 'EDEMO_SSO_VERSION', 0.01 );
 
@@ -41,7 +42,6 @@ class eDemoSSO {
 
 	function __construct() {
 		
-		$self=$this;
 		add_option('eDemoSSO_appkey', '', '', 'yes');
 		add_option('eDemoSSO_secret', '', '', 'yes');
 		add_option('eDemoSSO_appname', '', '', 'yes');
@@ -83,7 +83,17 @@ class eDemoSSO {
 		
 		### registering widgets
 		add_action( 'widgets_init', array ( $this, 'register_widgets' ) );
+		
+		### adding page script
+		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
+
 	}
+	
+	### adding page script
+	function add_js(){
+		wp_enqueue_script( 'pagescript', plugins_url( '/edemo_sso_auth.js' , __FILE__ ));	
+	}
+	
 //	static function get_appkey() {return this->$appkey;}
 	
 //	static function get_callbackURL() {return self->$callbackURL;}
@@ -152,7 +162,7 @@ function show_SSO_user_profile( $user ) { ?>
     </table>
 <?php }
 
-
+	//adding plugin texdomain
 	function textdomain() {
 		load_plugin_textdomain( 'eDemo-SSO', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
 	}
@@ -199,7 +209,7 @@ function show_SSO_user_profile( $user ) { ?>
 				<fieldset class='options'>
 					<table class="form-table">
 						<tr>
-							<th width="30%" valign="top" style="padding-top: 10px;">
+							<th>
 								<label for="EdemoSSO_appname"><?= __( 'Application name:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
@@ -208,7 +218,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</td>
 						</tr>
 						<tr>
-							<th width="30%" valign="top" style="padding-top: 10px;">
+							<th>
 								<label for="EdemoSSO_appkey"><?= __( 'Application key:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
@@ -217,7 +227,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</td>
 						</tr>
 						<tr>
-							<th width="30%" valign="top" style="padding-top: 10px;">
+							<th>
 								<label for="EdemoSSO_secret"><?= __( 'Application secret:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
@@ -226,7 +236,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</td>
 						</tr>
 						<tr>
-							<th width="30%" valign="top" style="padding-top: 10px;">
+							<th>
 								<label for="EdemoSSO_sslverify"><?= __( 'Allow verify ssl certificates:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
@@ -243,7 +253,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</td>
 						</tr>
 						<tr>
-							<th width="30%" valign="top" style="padding-top: 10px;">
+							<th>
 								<label for="EdemoSSO_allowBind"><?= __( 'SSO account binding:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
@@ -283,14 +293,20 @@ function show_SSO_user_profile( $user ) { ?>
 	
   function sign_it( $atts )	{
     $a = shortcode_atts( array(
-        'text'   => 'Sign it if you agree with',
-        'thanks' => 'Thanks for your sign',
-        'signed' => 'You signed yet, thanks',
+        'text'   => __('Sign it if you agree with'),
+        'thanks' => __('Thanks for your sign'),
+        'signed' => __('You signed yet, thanks'),
           ), $atts );
 
 	if ( !is_user_logged_in() ) {
-		return '<a href="https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.self::$appkey.'&redirect_uri='.urlencode(self::$callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'"><div class="btn">'.$a['text'].'</div></a>';
+		return '
+		<a href="https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.self::$appkey.'&redirect_uri='.urlencode(self::$callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'">
+			<div class="btn">
+				'.$a['text'].'
+			</div>
+		</a>
     }
+	
     elseif ( isset( $_GET['signed'] ) ) {
       if ($this->is_signed()) return '<div class="button SSO_signed">'.$a['signed'].'</div>';
       else {
@@ -400,6 +416,9 @@ function show_SSO_user_profile( $user ) { ?>
 							}
 						case 'login':
 							if ( $ssoUser ) {
+								$this->refreshUserMeta($ssoUser[0]->ID, Array(	'userid' => $user_data['userid'],
+																		'refresh_token' => $token['refresh_token'],
+																		'assurances' => $user_data['assurances'] ));
 								$this->error_message=($this->signinUser($ssoUser[0]))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
 							}
 							else {
