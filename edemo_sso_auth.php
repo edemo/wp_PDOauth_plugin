@@ -28,6 +28,7 @@ class eDemoSSO {
 	const USERMETA_ASSURANCES	= 'eDemoSSO_assurances';
 	const WP_REDIR_VAR			= 'wp_redirect';
 	const SSO_LOGIN_URL			= 'sso.edemokraciagep.org/static/login.html';
+	const SSO_UIDVAR			= 'eDemoSSO_uid';
 
 	static $callbackURL;
 	public $error_message;
@@ -39,9 +40,12 @@ class eDemoSSO {
 	private $access_token;
 	private $refresh_token;
 	private $default_role;
+	private $SSO_code;
+	private $SSO_action;
 
 	function __construct() {
 		
+		if (!session_id()) { session_start(); }
 		add_option('eDemoSSO_appkey', '', '', 'yes');
 		add_option('eDemoSSO_secret', '', '', 'yes');
 		add_option('eDemoSSO_appname', '', '', 'yes');
@@ -59,15 +63,12 @@ class eDemoSSO {
 		### Adding sso callback function to rewrite rules
 		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
 		add_action( 'login_footer', array( $this, 'add_login_button' ) );
-		add_filter( 'query_vars', array( $this, 'query_vars' ) );
 		add_filter( 'the_content', array( $this, 'the_content_filter' ) );
 
 		### Plugin activation hooks
 		register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivation' ) );
 		
-		
-		add_action( 'parse_request', array( $this, 'parse_request' ) );
 		add_shortcode('SSOsignit', array( $this, 'sign_it' ) );	
 		
 		### Adding admin page
@@ -86,29 +87,60 @@ class eDemoSSO {
 		
 		### adding page script
 		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
-
+		
+		add_filter( 'do_parse_request',  array($this, 'do_parse_request'), 10, 3 );
 	}
 	
 	### adding page script
 	function add_js(){
 		wp_enqueue_script( 'pagescript', plugins_url( '/edemo_sso_auth.js' , __FILE__ ));	
 	}
+
+	#
+	# Helper functions
+	#
 	
+	static function make_urivars($params_array){
+		$retval='';
+		foreach ($params_array as $key=>$value) {
+			$retval.='&'.$key.'='.$params_array[$key];
+		}
+		if ($retval!='') $retval=substr($retval,1);
+		return $retval;
+	}
+	
+	public static function SSO_redirect_uri($params_array){
+		return '&redirect_uri='.urlencode(self::$callbackURL.'?'.self::make_urivars($params_array).'&'.self::WP_REDIR_VAR.'='.$_SERVER['REQUEST_URI']);
+	}
+
+	public static function SSO_auth_action_link($action){
+		return 'https://'.self::SSO_AUTH_URI.'?response_type=code&client_id='.self::$appkey.self::SSO_redirect_uri(array('SSO_action'=>$action));
+	}
+	
+	public static function SSO_action_link($action,$uid=null){
+		$params_array=array('SSO_action'=>$action, '_wpnonce'=>wp_create_nonce($action));
+		if ($uid) $params_array[self::SSO_UIDVAR]=$uid;
+		return self::$callbackURL.'?'.self::make_urivars($params_array).'&'.self::WP_REDIR_VAR.'='.$_SERVER['REQUEST_URI'];
+	}
+
+	function get_refresh_token($user_id) {
+		return get_user_meta($user_id,self::USERMETA_TOKEN, true);
+	}
+
+	public static function has_user_SSO($user_id) {
+		return get_user_meta($user_id,self::USERMETA_ID, true)!='';
+	}
 //	static function get_appkey() {return this->$appkey;}
 	
 //	static function get_callbackURL() {return self->$callbackURL;}
 	
-	static function user_has_SSO($user_id) {
-		return get_user_meta($user_id,self::USERMETA_ID, true)!='';
-	}
+
 	
 	function register_widgets() {
 		register_widget( 'eDemoSSO_login' );
 	}
 	
-	function get_refresh_token($user_id) {
-		return get_user_meta($user_id,self::USERMETA_TOKEN, true);
-	}
+
 
 	function get_SSO_assurances($user_login) {
 		$user=get_user_by('login',$user_login);
@@ -133,7 +165,7 @@ class eDemoSSO {
 	}
 	
 	function add_login_button() { ?>
-	<div align="center">
+	<div class="button" align="center">
 		<a href="https://<?=self::SSO_AUTH_URI?>?response_type=code&client_id=<?=self::$appkey?>&redirect_uri=<?=urlencode(self::$callbackURL.'?'.self::WP_REDIR_VAR.'=/&SSO_action=login')?>">
 			<div class="btn"><?=__( 'SSO login', 'eDemo-SSO' );?></div>
 		</a>
@@ -142,10 +174,10 @@ class eDemoSSO {
  
 function show_SSO_user_profile( $user ) { ?>
  
-    <h3><?= __( 'SSO user data', 'eDemo-SSO' )?></h3>
-
+	<hr>
+	<h3><?= __( 'SSO user data', 'eDemo-SSO' )?></h3>
     <table class="form-table">
- 
+		<?php if (self::has_user_SSO($user->ID)) {?> 
         <tr>
             <th>SSO id</th>
             <td><?= get_user_meta($user->ID,self::USERMETA_ID, true) ?></td>
@@ -158,8 +190,49 @@ function show_SSO_user_profile( $user ) { ?>
 			<th>SSO assurances</th>
             <td><?= get_user_meta($user->ID,self::USERMETA_ASSURANCES, true) ?></td>
         </tr>
- 
-    </table>
+		<tr>
+			<th></th>
+			<td>
+				<p>
+					<div class="notice notice-success inline">
+						<p></p>
+					</div>
+					<a class="button" href="<?=self::SSO_action_link('refresh',$user->ID)?>">
+						<?= __( 'Refresh', 'eDemo-SSO' )?>
+					</a>
+				</p>
+				<p class="description"><?= __('Downloads the assurences from the SSO service', 'eDemo-SSO' )?></p>
+			</td>
+		</tr>
+		<tr>
+			<th></th>
+			<td>
+				<p>
+					<div class="notice notice-success inline">
+						<p></p>
+					</div>
+					<a class="button" href="<?=self::SSO_action_link('unbind',$user->ID)?>">
+						<?= __( 'Unbind', 'eDemo-SSO' )?>
+					</a>
+				</p>
+				<p class="description"><?= __('Unbinding SSO account from the user', 'eDemo-SSO' )?></p>
+			</td>
+		</tr>
+		<?php }
+		else if ($user->ID==get_current_user_id() and self::$allowBind){?>
+		<tr>
+			<th></th>
+			<td>
+				<p><?__( "For this account hasn't SSO account binded", 'eDemo-SSO' )?><p>
+				<a class="button" href="<?=self::SSO_auth_action_link('binding',$user->ID)?>">
+					<?= __( 'Bind SSO account', 'eDemo-SSO' )?>
+				</a>
+				<p class="description"><?= __('This will bind your account with an SSO account. If you are logged in to your SSO account, this goes automaticly. Otherwise you will be redirected to the SSO login page served by SSO Service. ', 'eDemo-SSO' )?></p>
+				<p class="description"><?= __('If you have here registered with your SSO account, that will be merged in this account with all activity data stored before. User data still remain.', 'eDemo-SSO' )?></p>
+			</td>
+		</tr>
+		<?php }?>
+     </table>
 <?php }
 
 	//adding plugin texdomain
@@ -290,7 +363,7 @@ function show_SSO_user_profile( $user ) { ?>
 	
   // shortcode for 'sign it' function
  	// [SSOsignit text="Sign it if you agree with" thanks="Thank you" signed="Has been signed"]
-	
+
   function sign_it( $atts )	{
     $a = shortcode_atts( array(
         'text'   => __('Sign it if you agree with'),
@@ -304,7 +377,7 @@ function show_SSO_user_profile( $user ) { ?>
 			<div class="btn">
 				'.$a['text'].'
 			</div>
-		</a>
+		</a>';
     }
 	
     elseif ( isset( $_GET['signed'] ) ) {
@@ -332,8 +405,8 @@ function show_SSO_user_profile( $user ) { ?>
 
 	function add_rewrite_rules() {
 		global $wp_rewrite;
-		$rules = array( self::CALLBACK_URI.'(.+?)$' => 'index.php$matches[1]&'.self::CALLBACK_URI.'=true',
-                    self::CALLBACK_URI.'$'      => 'index.php?'.self::CALLBACK_URI.'=true&'  );
+		$rules = array( self::CALLBACK_URI.'(.+?)$' => 'index.php$matches[1]&'.self::QUERY_VAR.'=true',
+                    self::CALLBACK_URI.'$'      => 'index.php?'.self::QUERY_VAR.'=true&'  );
 		$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
 	}
 
@@ -357,21 +430,30 @@ function show_SSO_user_profile( $user ) { ?>
 		$wp_rewrite->flush_rules(); // force call to generate_rewrite_rules()
 	}
 
-  function parse_request( &$wp )
-  {
-    if ( array_key_exists( self::QUERY_VAR, $wp->query_vars ) ) {
-         if (isset($_GET[self::WP_REDIR_VAR])) {
-			$expl_uri=explode('?',$_GET[self::WP_REDIR_VAR]);
-          $_SERVER['REQUEST_URI']="/".$expl_uri[0]."?SSO_code=".$_GET['code'].(isset($_GET['SSO_action'])?('&SSO_action='.$_GET['SSO_action']):'');
-          $wp->parse_request();
-        }
-    }
-    if ( array_key_exists( 'SSO_code', $_GET) ) {
-        $this->auth_message=$this->callback_process();
-     }
-    return;
-  }	
-  
+	function do_parse_request( $result, $wp, $extra_query_vars){
+		if (strpos($_SERVER['REQUEST_URI'],'/'.self::CALLBACK_URI)!==false) {
+			if (isset($_GET['SSO_action'])) {
+				$this->SSO_action=$_GET['SSO_action'];
+				unset ($_GET['SSO_action']);
+				if (isset($_GET['code'])) {
+					$this->SSO_code=$_GET['code'];
+					unset ($_GET['code']);
+					$this->auth_message=$this->callback_process();
+				}
+				else {
+					$this->do_action($this->SSO_action);
+				}
+			}
+			if (isset($_GET[self::WP_REDIR_VAR])) {
+				$location=urldecode($_GET[self::WP_REDIR_VAR]);
+				wp_redirect($location);
+				exit;
+			}
+		}
+		return $result;
+	}
+	
+
   //
   // displaying auth error message in the top of content
   //
@@ -383,15 +465,29 @@ function show_SSO_user_profile( $user ) { ?>
     return $content;
   }
 
-  //
-  // our query var filter adds the SSO query var to the query. Used for identifying the call of the callback url.
-  //
-
-	function query_vars( $public_query_vars ) { 
-		array_push( $public_query_vars, self::QUERY_VAR );
-		return $public_query_vars;
+	function do_action($action){
+		if ( wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
+			$uid=(isset($_REQUEST['self::SSO_UIDVAR'])?$_REQUEST['self::SSO_UIDVAR']:get_current_user_id());
+			error_log($uid.' - '.$action);
+			switch ($action){
+				case 'refresh':
+					if (self::has_user_SSO($uid)) {
+						if ($token=$this->request_new_token(get_user_meta($uid,self::USERMETA_TOKEN, true))) {
+							if ($user_data = $this->requestUserData()) $this->refreshUserMeta($uid,$user_data);
+						}
+					}
+					break;
+				case 'unbind':
+					error_log('unbind case');
+					if (self::has_user_SSO($uid)) {
+						error_log('deleteUsermeta calling');
+						$this->deleteUserMeta($uid);
+					}
+					break;
+			}
+		}
 	}
-  
+	
   //
   // Commumication with oauth server
   //
@@ -400,13 +496,13 @@ function show_SSO_user_profile( $user ) { ?>
    
 	function callback_process() {
 
-		if (isset($_GET['SSO_code'])) {
-			if ( $token = $this->requestToken( $_GET['SSO_code'] ) ) {
+		if (isset($this->SSO_code) and $this->SSO_code!='') {
+			if ( $token = $this->requestToken( $this->SSO_code ) ) {
 				$this->access_token=$token['access_token'];
 				$this->refresh_token=$token['refresh_token'];
-				if ( $user_data = $this->requestUserData( ) and isset($_GET['SSO_action']) ) {
+				if ( $user_data = $this->requestUserData( $this->access_token ) and isset($this->SSO_action) ) {
 					$ssoUser = get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $user_data['userid']) );
-					switch ($_GET['SSO_action']){ 
+					switch ($this->SSO_action){ 
 						case 'register':
 							if (!$ssoUser) {
 								if ( $user_id=$this->registerUser($user_data, $token)) {
@@ -468,7 +564,10 @@ function show_SSO_user_profile( $user ) { ?>
 	             'blocking' => true,
 	              'headers' => array(),
 	                 'body' => array(  'grant_type' => 'refresh_token',
-				                       'refresh_token' => $refresh_token),
+				                       'refresh_token' => $refresh_token,
+										'client_id' => self::$appkey,
+										'client_secret' => $this->secret
+									   ),
 	              'cookies' => array(),
 	            'sslverify' => $this->sslverify ) );
     if ( is_wp_error( $response )  ) {
@@ -476,6 +575,7 @@ function show_SSO_user_profile( $user ) { ?>
       return false;
     }
     else {
+		error_log($response['body']);
       $body = json_decode( $response['body'], true );
       if (!empty($body)){
         if ( isset( $body['error'] ) ) {
@@ -483,7 +583,6 @@ function show_SSO_user_profile( $user ) { ?>
           return false;
         }
         else {
-			error_log($body);
 			return $body;
 		}
       }
@@ -527,8 +626,8 @@ function show_SSO_user_profile( $user ) { ?>
   
   // user data requesting phase, called if we have a valid token
   
-  function requestUserData( ) {
-	if ($this->access_token=='') return false;
+  function requestUserData( $access_token ) {
+	if ($access_token=='') return false;
     $response = wp_remote_get( 'https://'.self::SSO_USER_URI, array(
                     'timeout' => 30,
                 'redirection' => 10,
@@ -585,6 +684,13 @@ function show_SSO_user_profile( $user ) { ?>
 		update_user_meta( $user_id, self::USERMETA_ASSURANCES, json_encode($data['assurances']) );
 		return;
 	}
+	
+	function deleteUserMeta($user_id) {
+		delete_user_meta( $user_id, self::USERMETA_ID );
+		delete_user_meta( $user_id, self::USERMETA_TOKEN );
+		delete_user_meta( $user_id, self::USERMETA_ASSURANCES );
+		return;
+	}
   
   //  Logging in the user
   
@@ -608,18 +714,17 @@ class eDemoSSO_login extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		// Widget output
-		$expl_uri=explode('?',$_SERVER['REQUEST_URI']);
-		$ssoAuthHref='https://'.eDemoSSO::SSO_AUTH_URI.'?response_type=code&client_id='.eDemoSSO::$appkey.'&redirect_uri='.urlencode(eDemoSSO::$callbackURL.'?'.eDemoSSO::WP_REDIR_VAR.'='.$expl_uri[0]);
+		echo '<h3 class="widget-title">SSO login</h3>';
 		if (is_user_logged_in()) {
-			if (eDemoSSO::$allowBind and !eDemoSSO::user_has_SSO(get_current_user_id())) {
-				echo '<p><a href="'.$ssoAuthHref.urlencode('&SSO_action=binding').'">Bind SSO account</a></p>';
+			if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO(get_current_user_id())) {
+				echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('binding').'">'.__('Bind SSO account','eDemo-SSO').'</a></p>';
 			}
 			echo '<p><a href="/wp-admin/profile.php">'.__('Show user profile', 'eDemo-SSO').'</a></p>';
-			echo '<p><a href="'.wp_logout_url( $expl_uri[0] ).'">'.__('Logout', 'eDemo-SSO').'</a></p>';
+			echo '<p><a href="'.wp_logout_url( $_SERVER['REQUEST_URI'] ).'">'.__('Logout', 'eDemo-SSO').'</a></p>';
 		}
 		else {
-			echo '<p><a href="'.$ssoAuthHref.urlencode('&SSO_action=login').'">'.__('Login with SSO', 'eDemo-SSO').'</a></p>';
-			echo '<p><a href="'.$ssoAuthHref.urlencode('&SSO_action=register').'">'.__('Register with SSO', 'eDemo-SSO').'</a></p>';
+			echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('login').'">'.__('Login with SSO', 'eDemo-SSO').'</a></p>';
+			echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('register').'">'.__('Register with SSO', 'eDemo-SSO').'</a></p>';
 		}
 	}
 
