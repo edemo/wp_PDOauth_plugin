@@ -42,16 +42,18 @@ class eDemoSSO {
 	private $default_role;
 	private $SSO_code;
 	private $SSO_action;
+	private $needed_assurances;
 
 	function __construct() {
 		
-		if (!session_id()) { session_start(); }
 		add_option('eDemoSSO_appkey', '', '', 'yes');
 		add_option('eDemoSSO_secret', '', '', 'yes');
 		add_option('eDemoSSO_appname', '', '', 'yes');
 		add_option('eDemoSSO_sslverify', '', '', 'yes');
 		add_option('eDemoSSO_allowBind', '', '', 'yes');
 		add_option('eDemoSSO_default_role', '', '', 'yes');
+		add_option('eDemoSSO_hide_adminbar', '', '', 'yes');
+		add_option('eDemoSSO_needed_assurances', '', '', 'yes');
     
 		self::$callbackURL = get_site_url( "", "", "https" )."/".self::CALLBACK_URI;
 		self::$appkey = get_option('eDemoSSO_appkey');
@@ -59,6 +61,9 @@ class eDemoSSO {
 		$this->secret = get_option('eDemoSSO_secret');
 		$this->sslverify = get_option('eDemoSSO_sslverify');
         $this->default_role = get_option('eDemoSSO_default_role');
+		$this->hide_adminbar = get_option('eDemoSSO_hide_adminbar');
+		$this->needed_assurances = get_option('eDemoSSO_needed_assurances');
+		$this->array_of_needed_assurances = ($this->needed_assurances)?explode(',',$this->needed_assurances):array();
 		
 		### Adding sso callback function to rewrite rules
 		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
@@ -165,9 +170,9 @@ class eDemoSSO {
 	}
 	
 	function add_login_button() { ?>
-	<div class="button" align="center">
+	<div class="button" style="margin: 0 auto; display: table;">
 		<a href="https://<?=self::SSO_AUTH_URI?>?response_type=code&client_id=<?=self::$appkey?>&redirect_uri=<?=urlencode(self::$callbackURL.'?'.self::WP_REDIR_VAR.'=/&SSO_action=login')?>">
-			<div class="btn"><?=__( 'SSO login', 'eDemo-SSO' );?></div>
+			<?=__( 'SSO login', 'eDemo-SSO' );?>
 		</a>
 	</div>
 	<?php }
@@ -258,18 +263,23 @@ function show_SSO_user_profile( $user ) { ?>
 //			check_admin_referer();    // EZT MAJD MEG KELLENE NÉZNI !!!!!
 
 			// Update options 
-			$this->sslverify    = isset($_POST['EdemoSSO_sslverify']);
-			self::$appkey       = $_POST['EdemoSSO_appkey'];
-			$this->secret       = $_POST['EdemoSSO_secret'];
-			$this->appname      = $_POST['EdemoSSO_appname'];
-			self::$allowBind    = $_POST['EdemoSSO_allowBind'];
-			$this->default_role = $_POST['EdemoSSO_default_role'];
-			update_option( 'eDemoSSO_appkey'   , self::$appkey   );
-			update_option( 'eDemoSSO_secret'   , $this->secret   );
-			update_option( 'eDemoSSO_appname'  , $this->appname  );
-			update_option( 'eDemoSSO_sslverify', $this->sslverify);
-			update_option( 'eDemoSSO_allowBind', self::$allowBind);
-			update_option( 'eDemoSSO_default_role'  , $this->default_role  );
+			$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
+			self::$appkey			= $_POST['EdemoSSO_appkey'];
+			$this->secret			= $_POST['EdemoSSO_secret'];
+			$this->appname			= $_POST['EdemoSSO_appname'];
+			self::$allowBind		= isset($_POST['EdemoSSO_allowBind']);
+			$this->default_role		= $_POST['EdemoSSO_default_role'];
+			$this->hide_adminbar	= isset($_POST['EdemoSSO_hide_adminbar']);
+			$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
+
+			update_option( 'eDemoSSO_appkey'   			, self::$appkey   );
+			update_option( 'eDemoSSO_secret'   			, $this->secret   );
+			update_option( 'eDemoSSO_appname'  			, $this->appname  );
+			update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
+			update_option( 'eDemoSSO_allowBind'			, self::$allowBind );
+			update_option( 'eDemoSSO_hide_adminbar'		, $this->hide_adminbar );
+			update_option( 'eDemoSSO_default_role'  	, $this->default_role );
+			update_option( 'eDemoSSO_needed_assurances' , str_replace(' ', '', $this->needed_assurances) );
 
 			// echo message updated
 			echo "<div class='updated fade'><p>Options updated.</p></div>";
@@ -287,7 +297,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<input type='text' size='16' maxlength='30' name='EdemoSSO_appname' id='EdemoSSO_appname' value='<?= get_option('eDemoSSO_appname'); ?>' />
-								<?= __( 'Used for registering the application', 'eDemo-SSO' ) ?>
+								<p class="description"><?= __( 'Used for registering the application', 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -296,7 +306,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<input type='text' size='40' maxlength='40' name='EdemoSSO_appkey' id='EdemoSSO_appkey' value='<?= self::$appkey; ?>' />
-								<?= __( 'Application key.', 'eDemo-SSO' ) ?>
+								<p class="description"><?= __( 'Application key.', 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -305,7 +315,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<input type='text' size='40' maxlength='40' name='EdemoSSO_secret' id='EdemoSSO_secret' value='<?= $this->secret; ?>' />
-								<?= __( 'Application secret.', 'eDemo-SSO' ) ?>
+								<p class="description"><?= __( 'Application secret.', 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -314,7 +324,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<input type='checkbox' name='EdemoSSO_sslverify' id='EdemoSSO_sslverify' <?= (($this->sslverify)?'checked':''); ?> />
-								<?= __( "If this set, the ssl certificates will be verified during the communication with sso server. Uncheck is recommended if your site has no cert, or the issuer isn't validated.", 'eDemo-SSO' ) ?>
+								<p class="description"><?= __( "If this set, the ssl certificates will be verified during the communication with sso server. Uncheck is recommended if your site has no cert, or the issuer isn't validated.", 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -323,6 +333,7 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<?= self::$callbackURL ?>
+								<p class="description"><?=__('Callback url for communication with the SSO_server', 'eDemo-SSO')?></p>
 							</td>
 						</tr>
 						<tr>
@@ -331,7 +342,16 @@ function show_SSO_user_profile( $user ) { ?>
 							</th>
 							<td>
 								<input type='checkbox' name='EdemoSSO_allowBind' id='EdemoSSO_allowBind' <?= ((self::$allowBind)?'checked':''); ?> />
-								<?= __( "If this set, a SSO account can be binded with the given Wordpress account. User gets a 'bind' button on his datasheet and in the SSO login widget.", 'eDemo-SSO') ?>
+								<p class="description"><?= __( "If this set, a SSO account can be binded with the given Wordpress account. User gets a 'bind' button on his datasheet and in the SSO login widget.", 'eDemo-SSO') ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="EdemoSSO_hide_adminbar"><?= __( 'Hide adminbar:', 'eDemo-SSO' ) ?></label>
+							</th>
+							<td>
+								<input type='checkbox' name='EdemoSSO_hide_adminbar' id='EdemoSSO_hide_adminbar' <?= (($this->hide_adminbar)?'checked':''); ?> />
+								<p class="description"><?= __( "If this set, the hide admin bar option will be set on the users profile during registration process. That means, the admin bar willn't be shown as default if the user logged in. Anyway hide and show admin bar can be set on the user's profile page", 'eDemo-SSO') ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -342,7 +362,16 @@ function show_SSO_user_profile( $user ) { ?>
 								<select name="EdemoSSO_default_role" id="EdemoSSO_default_role">
 									<?= wp_dropdown_roles( $this->default_role ); ?>
 								</select>
-								<?= __( "The default WP role, which will be added during the SSO registration", 'eDemo-SSO') ?>
+								<p class="description"><?= __( "The default WP role, which will be added during the SSO registration", 'eDemo-SSO') ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="EdemoSSO_needed_assurances"><?= __( 'Needed assurances:', 'eDemo-SSO' ) ?></label>
+							</th>
+							<td>
+								<input type='text' size='16' maxlength='30' name='EdemoSSO_needed_assurances' id='EdemoSSO_needed_assurances' value='<?= get_option('EdemoSSO_needed_assurances'); ?>' />
+								<p class="description"><?= __( 'Comma separated list of assurances needed for allowing registering the user. Keep empty, if no assurance needed for registration.', 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -416,9 +445,7 @@ function show_SSO_user_profile( $user ) { ?>
 	  
 		add_role( self::USER_ROLE, 'eDemo_SSO user', array( 'read' => true, 'level_0' => true ) );
 
-		// Adding new rewrite rules     
-    
-		global $wp_rewrite;
+		// Addiobal $wp_rewrite;
 		$wp_rewrite->flush_rules(); // force call to generate_rewrite_rules()
 	}
 	
@@ -650,6 +677,14 @@ function show_SSO_user_profile( $user ) { ?>
     return false;
   }
   
+	function check_needed_assurances($array_of_assurances) {
+		if (!$this->array_of_needed_assurances) return true;
+		foreach ($this->array_of_needed_assurances as $assurance) {
+			if ( !in_array($assurance,$array_of_assurances) ) return false;
+		}
+		return true;
+	}
+  
   //
   //  Wordpress User function
   //
@@ -659,23 +694,28 @@ function show_SSO_user_profile( $user ) { ?>
 	function registerUser($user_data, $token){
 
 	// registering new user
-        $display_name=explode('@',$user_data['email']);
-        $user_id = wp_insert_user( array( 'user_login' => $user_data['userid'],
+		if ($this->check_needed_assurances($user_data['assurances'])) {
+			$display_name=explode('@',$user_data['email']);
+			$user_id = wp_insert_user( array( 'user_login' => $user_data['userid'],
                                           'user_email' => $user_data['email'],
                                           'display_name' => $display_name[0],
 										  'user_pass' => null,
                                           'role' => $this->default_role ));
-	//On success
-        if( !is_wp_error($user_id) ) {
-			$this->refreshUserMeta($user_id, Array(	'userid' => $user_data['userid'],
+		//On success
+			if( !is_wp_error($user_id) ) {
+				$this->refreshUserMeta($user_id, Array(	'userid' => $user_data['userid'],
 													'refresh_token' => $token['refresh_token'],
 													'assurances' => $user_data['assurances'] ));
-			return $user_id;
+				if ($this->hide_adminbar) update_user_option( $user_id, 'show_admin_bar_front', false );
+				return $user_id;
+			}
+			else {
+				$this->error_message=$user_id->get_error_message(); 
+			}
 		}
-        else {
-			$this->error_message=$user_id->get_error_message(); 
-			return false;
-		}
+		else $this->error_message=__("The following assurances needed for registration: ",'eDemo-SSO').str_replace(',', ', ', $this->needed_assurances);
+		error_log($this->error_message);
+		return false;
 	}
   
 	function refreshUserMeta($user_id, $data){
