@@ -1,9 +1,4 @@
-QueryStringFunc = function (win) { //http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-url-parameter
-  // This function is anonymous, is executed immediately and 
-  // the return value is assigned to QueryString!
-  win=win || window 			// to be testable
-  var query_string = {};
-  var query = win.location.search.substring(1);
+
 function SSO(test) {
 	var self = this
 	test=test || { debug: false }

@@ -29,6 +29,7 @@ class eDemoSSO {
 	const WP_REDIR_VAR			= 'wp_redirect';
 	const SSO_LOGIN_URL			= 'sso.edemokraciagep.org/static/login.html';
 	const SSO_UIDVAR			= 'eDemoSSO_uid';
+	const SSO_SITE_URL			= 'https://sso.edemokraciagep.org/static/login.html';
 
 	static $callbackURL;
 	public $error_message;
@@ -94,6 +95,10 @@ class eDemoSSO {
 		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
 		
 		add_filter( 'do_parse_request',  array($this, 'do_parse_request'), 10, 3 );
+		add_filter( 'wp_headers', array($this, 'wp_headers_filter'), 10, 2);
+	}
+	function wp_headers_filter($headers, $wp){
+		return $headers;
 	}
 	
 	### adding page script
@@ -441,11 +446,13 @@ function show_SSO_user_profile( $user ) { ?>
 
 	function plugin_activation() {
 
-		// Adding new user role "eDemo_SSO_role" only with "read" capability 
+		// Adding new user role "eDemo_SSO_role" only with "read" capability
 	  
 		add_role( self::USER_ROLE, 'eDemo_SSO user', array( 'read' => true, 'level_0' => true ) );
 
-		// Addiobal $wp_rewrite;
+		// Adding new rewrite rules     
+    
+		global $wp_rewrite;
 		$wp_rewrite->flush_rules(); // force call to generate_rewrite_rules()
 	}
 	
@@ -495,7 +502,6 @@ function show_SSO_user_profile( $user ) { ?>
 	function do_action($action){
 		if ( wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
 			$uid=(isset($_REQUEST['self::SSO_UIDVAR'])?$_REQUEST['self::SSO_UIDVAR']:get_current_user_id());
-			error_log($uid.' - '.$action);
 			switch ($action){
 				case 'refresh':
 					if (self::has_user_SSO($uid)) {
@@ -505,9 +511,7 @@ function show_SSO_user_profile( $user ) { ?>
 					}
 					break;
 				case 'unbind':
-					error_log('unbind case');
 					if (self::has_user_SSO($uid)) {
-						error_log('deleteUsermeta calling');
 						$this->deleteUserMeta($uid);
 					}
 					break;
@@ -602,7 +606,6 @@ function show_SSO_user_profile( $user ) { ?>
       return false;
     }
     else {
-		error_log($response['body']);
       $body = json_decode( $response['body'], true );
       if (!empty($body)){
         if ( isset( $body['error'] ) ) {
@@ -675,10 +678,10 @@ function show_SSO_user_profile( $user ) { ?>
     }
 	$this->error_message=__("Invalid response has been came from SSO server", 'eDemo-SSO');
     return false;
-  }
+	}
   
 	function check_needed_assurances($array_of_assurances) {
-		if (!$this->array_of_needed_assurances) return true;
+		if (count($this->array_of_needed_assurances)==0) return true;
 		foreach ($this->array_of_needed_assurances as $assurance) {
 			if ( !in_array($assurance,$array_of_assurances) ) return false;
 		}
@@ -714,7 +717,6 @@ function show_SSO_user_profile( $user ) { ?>
 			}
 		}
 		else $this->error_message=__("The following assurances needed for registration: ",'eDemo-SSO').str_replace(',', ', ', $this->needed_assurances);
-		error_log($this->error_message);
 		return false;
 	}
   
@@ -752,20 +754,29 @@ class eDemoSSO_login extends WP_Widget {
 		parent::__construct( false, 'eDemoSSO_login' );
 	}
 
-	function widget( $args, $instance ) {
+	function widget( $args, $instance ) { 
 		// Widget output
-		echo '<h3 class="widget-title">SSO login</h3>';
-		if (is_user_logged_in()) {
-			if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO(get_current_user_id())) {
-				echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('binding').'">'.__('Bind SSO account','eDemo-SSO').'</a></p>';
-			}
-			echo '<p><a href="/wp-admin/profile.php">'.__('Show user profile', 'eDemo-SSO').'</a></p>';
-			echo '<p><a href="'.wp_logout_url( $_SERVER['REQUEST_URI'] ).'">'.__('Logout', 'eDemo-SSO').'</a></p>';
-		}
-		else {
-			echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('login').'">'.__('Login with SSO', 'eDemo-SSO').'</a></p>';
-			echo '<p><a href="'.eDemoSSO::SSO_auth_action_link('register').'">'.__('Register with SSO', 'eDemo-SSO').'</a></p>';
-		}
+		$current_user = wp_get_current_user(); 
+		?>
+		<h3 class="widget-title"><?= __('SSO login','eDemo-SSO') ?></h3>
+		
+		<?php if (is_user_logged_in()) { ?>
+		<p><?= __('Welcome ','eDemo-SSO').$current_user->display_name ?></p>
+		<hr>
+			<?php if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO($current_user->ID)) { ?>
+		<p><a href="<?= eDemoSSO::SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></p>
+			<?php } ?>
+		<p><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></p>
+		<p><a href="<?=wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?= __('Logout', 'eDemo-SSO')?></a></p>
+		<?php }
+		
+		else { ?>
+		<p><a href="<?= eDemoSSO::SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></p>
+		<p><a href="<?= eDemoSSO::SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></p>
+		<?php } ?>
+		<hr>
+		<p><a href="<?= eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></p>
+		<?php
 	}
 
 	function update( $new_instance, $old_instance ) {
@@ -777,5 +788,4 @@ class eDemoSSO_login extends WP_Widget {
 	}
 }
 
-//delete_user_meta(1, 'eDemoSSO_ID')
 ?>
