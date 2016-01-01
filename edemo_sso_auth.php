@@ -44,6 +44,7 @@ class eDemoSSO {
 	private $SSO_code;
 	private $SSO_action;
 	private $needed_assurances;
+	static $allowRegister;
 
 	function __construct() {
 		
@@ -52,6 +53,7 @@ class eDemoSSO {
 		add_option('eDemoSSO_appname', '', '', 'yes');
 		add_option('eDemoSSO_sslverify', '', '', 'yes');
 		add_option('eDemoSSO_allowBind', '', '', 'yes');
+		add_option('eDemoSSO_allowRegister', '', '', 'yes');
 		add_option('eDemoSSO_default_role', '', '', 'yes');
 		add_option('eDemoSSO_hide_adminbar', '', '', 'yes');
 		add_option('eDemoSSO_needed_assurances', '', '', 'yes');
@@ -59,6 +61,7 @@ class eDemoSSO {
 		self::$callbackURL = get_site_url( "", "", "https" )."/".self::CALLBACK_URI;
 		self::$appkey = get_option('eDemoSSO_appkey');
 		self::$allowBind = get_option('eDemoSSO_allowBind');
+		self::$allowRegister = get_option('eDemoSSO_allowRegister');
 		$this->secret = get_option('eDemoSSO_secret');
 		$this->sslverify = get_option('eDemoSSO_sslverify');
         $this->default_role = get_option('eDemoSSO_default_role');
@@ -93,9 +96,11 @@ class eDemoSSO {
 		
 		### adding page script
 		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
+		add_action( 'admin_enqueue_scripts', array ( $this, 'add_js') );
 		
 		add_filter( 'do_parse_request',  array($this, 'do_parse_request'), 10, 3 );
 		add_filter( 'wp_headers', array($this, 'wp_headers_filter'), 10, 2);
+		add_action( 'wp_footer', array( $this, 'messageSript') );
 	}
 	function wp_headers_filter($headers, $wp){
 		return $headers;
@@ -187,7 +192,12 @@ function show_SSO_user_profile( $user ) { ?>
 	<hr>
 	<h3><?= __( 'SSO user data', 'eDemo-SSO' )?></h3>
     <table class="form-table">
-		<?php if (self::has_user_SSO($user->ID)) {?> 
+		<?php if (isset($_SESSION['eDemoSSO_auth_message']) and  $_SESSION['eDemoSSO_auth_message']!='') {?> 
+			<div class="notice notice-success inline">
+				<p><?=$_SESSION['eDemoSSO_auth_message']?></p>
+			</div>
+		<?php }			
+		if (self::has_user_SSO($user->ID)) {?> 
         <tr>
             <th>SSO id</th>
             <td><?= get_user_meta($user->ID,self::USERMETA_ID, true) ?></td>
@@ -204,9 +214,6 @@ function show_SSO_user_profile( $user ) { ?>
 			<th></th>
 			<td>
 				<p>
-					<div class="notice notice-success inline">
-						<p></p>
-					</div>
 					<a class="button" href="<?=self::SSO_action_link('refresh',$user->ID)?>">
 						<?= __( 'Refresh', 'eDemo-SSO' )?>
 					</a>
@@ -218,9 +225,6 @@ function show_SSO_user_profile( $user ) { ?>
 			<th></th>
 			<td>
 				<p>
-					<div class="notice notice-success inline">
-						<p></p>
-					</div>
 					<a class="button" href="<?=self::SSO_action_link('unbind',$user->ID)?>">
 						<?= __( 'Unbind', 'eDemo-SSO' )?>
 					</a>
@@ -243,7 +247,8 @@ function show_SSO_user_profile( $user ) { ?>
 		</tr>
 		<?php }?>
      </table>
-<?php }
+	<?php $this->messageSript('eDemoSSO-profilepage-message-container');
+	}
 
 	//adding plugin texdomain
 	function textdomain() {
@@ -273,6 +278,7 @@ function show_SSO_user_profile( $user ) { ?>
 			$this->secret			= $_POST['EdemoSSO_secret'];
 			$this->appname			= $_POST['EdemoSSO_appname'];
 			self::$allowBind		= isset($_POST['EdemoSSO_allowBind']);
+			self::$allowRegister	= isset($_POST['EdemoSSO_allowRegister']);
 			$this->default_role		= $_POST['EdemoSSO_default_role'];
 			$this->hide_adminbar	= isset($_POST['EdemoSSO_hide_adminbar']);
 			$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
@@ -282,6 +288,7 @@ function show_SSO_user_profile( $user ) { ?>
 			update_option( 'eDemoSSO_appname'  			, $this->appname  );
 			update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
 			update_option( 'eDemoSSO_allowBind'			, self::$allowBind );
+			update_option( 'eDemoSSO_allowRegister'		, self::$allowRegister );
 			update_option( 'eDemoSSO_hide_adminbar'		, $this->hide_adminbar );
 			update_option( 'eDemoSSO_default_role'  	, $this->default_role );
 			update_option( 'eDemoSSO_needed_assurances' , str_replace(' ', '', $this->needed_assurances) );
@@ -348,6 +355,15 @@ function show_SSO_user_profile( $user ) { ?>
 							<td>
 								<input type='checkbox' name='EdemoSSO_allowBind' id='EdemoSSO_allowBind' <?= ((self::$allowBind)?'checked':''); ?> />
 								<p class="description"><?= __( "If this set, a SSO account can be binded with the given Wordpress account. User gets a 'bind' button on his datasheet and in the SSO login widget.", 'eDemo-SSO') ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="EdemoSSO_allowRegister"><?= __( 'Allow registering:', 'eDemo-SSO' ) ?></label>
+							</th>
+							<td>
+								<input type='checkbox' name='EdemoSSO_allowRegister' id='EdemoSSO_allowRegister' <?= ((self::$allowRegister)?'checked':''); ?> />
+								<p class="description"><?= __( "This setting allows the user registrating with SSO service.", 'eDemo-SSO') ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -466,13 +482,12 @@ function show_SSO_user_profile( $user ) { ?>
 
 	function do_parse_request( $result, $wp, $extra_query_vars){
 		if (strpos($_SERVER['REQUEST_URI'],'/'.self::CALLBACK_URI)!==false) {
+			if (!session_id()) session_start();
 			if (isset($_GET['SSO_action'])) {
 				$this->SSO_action=$_GET['SSO_action'];
-				unset ($_GET['SSO_action']);
 				if (isset($_GET['code'])) {
 					$this->SSO_code=$_GET['code'];
-					unset ($_GET['code']);
-					$this->auth_message=$this->callback_process();
+					$_SESSION['eDemoSSO_auth_message']=$this->callback_process();
 				}
 				else {
 					$this->do_action($this->SSO_action);
@@ -492,10 +507,9 @@ function show_SSO_user_profile( $user ) { ?>
   // displaying auth error message in the top of content
   //
   
-  // we will found out what is the best way to display this (pop-up or anithing else) 
+	// we will found out what is the best way to display this (pop-up or anithing else) 
   
   function the_content_filter( $content ) {
-    echo "<div class='updated '><p>".$this->auth_message."</p></div>";
     return $content;
   }
 
@@ -506,14 +520,33 @@ function show_SSO_user_profile( $user ) { ?>
 				case 'refresh':
 					if (self::has_user_SSO($uid)) {
 						if ($token=$this->request_new_token(get_user_meta($uid,self::USERMETA_TOKEN, true))) {
-							if ($user_data = $this->requestUserData()) $this->refreshUserMeta($uid,$user_data);
+							if ($user_data = $this->requestUserData()) {
+								if ($this->refreshUserMeta($uid,$user_data)) {
+									$this->error_message=__('Your SSO metadata has been refreshed successfully', 'eDemo-SSO');
+								}
+							}
 						}
+						$_SESSION['eDemoSSO_auth_message']=$this->error_message;
 					}
 					break;
 				case 'unbind':
 					if (self::has_user_SSO($uid)) {
-						$this->deleteUserMeta($uid);
+						if ($this->deleteUserMeta($uid)) $message=__('Your SSO metadata has been deleted', 'eDemo-SSO');
+						else $message=__('Someting went wrong', 'eDemo-SSO');
+						$_SESSION['eDemoSSO_auth_message']=$message;
 					}
+					break;
+				case 'get_message':
+					error_log('itt vok');
+					header('Content-Type:application/json; charset=utf-8');
+					$message='';
+					if (isset($_SESSION['eDemoSSO_auth_message'])) {
+						$message=$_SESSION['eDemoSSO_auth_message'];
+						$_SESSION['eDemoSSO_auth_message']='';
+					}
+					echo json_encode(array('text'=>$message));
+					error_log('get_messages lefutott: '.$message);
+					exit;
 					break;
 			}
 		}
@@ -535,7 +568,7 @@ function show_SSO_user_profile( $user ) { ?>
 					$ssoUser = get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $user_data['userid']) );
 					switch ($this->SSO_action){ 
 						case 'register':
-							if (!$ssoUser) {
+							if (!$ssoUser and self::$allowRegister) {
 								if ( $user_id=$this->registerUser($user_data, $token)) {
 									$ssoUser[0]=get_user_by('id',$user_id);
 								}
@@ -549,9 +582,13 @@ function show_SSO_user_profile( $user ) { ?>
 								$this->error_message=($this->signinUser($ssoUser[0]))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
 							}
 							else {
-								$expl_uri=explode('?',$_SERVER['REQUEST_URI']);
-								$ssoAuthHref='https://'.eDemoSSO::SSO_AUTH_URI.'?response_type=code&client_id='.eDemoSSO::$appkey.'&redirect_uri='.urlencode(eDemoSSO::$callbackURL.'?'.eDemoSSO::WP_REDIR_VAR.'='.$expl_uri[0]);
-								$this->error_message=__('this user not registered yet. Would you like to <a href="'.$ssoAuthHref.urlencode('&SSO_action=register').'">register</a>?');
+								if (self::$allowRegister) {
+									$mstr=__('This user hasn\'t registered yet. Would you like to <a href="%s">register</a>?', 'eDemo-SSO');
+									$this->error_message = sprintf( wp_kses( $mstr, array( 'a' => array( 'href' => array('%s') ) ), self::SSO_auth_action_link('register') ) );
+								}
+								else {
+									$this->error_message = __('User hasn\'t account yet, registering with SSO service isn\'t allowed yet. Try to contact with the site administrator.', 'eDemo-SSO');
+								}
 							}
 							break;
 						case 'refresh':
@@ -742,7 +779,14 @@ function show_SSO_user_profile( $user ) { ?>
 		do_action( 'wp_login', $user->data->user_login );
 		return get_current_user_id()==$user->ID;
 	}
-   
+
+	function messageSript($container){
+		?>
+		<script type="text/javascript">
+			eDemo_SSO.callForMessage("<?= wp_create_nonce('get_message') ?>","<?= $container ?>")
+		</script>
+		<?php
+	}
 } // end of class declaration
 
 if (!isset($eDemoSSO)) { $eDemoSSO = new eDemoSSO(); } 
@@ -767,13 +811,13 @@ class eDemoSSO_login extends WP_Widget {
 		<p><a href="<?= eDemoSSO::SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></p>
 			<?php } ?>
 		<p><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></p>
-		<p><a href="<?=wp_logout_url( $_SERVER['REQUEST_URI'] )?>"><?= __('Logout', 'eDemo-SSO')?></a></p>
+		<p><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></p>
 		<?php }
-		
 		else { ?>
 		<p><a href="<?= eDemoSSO::SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></p>
+		<?php if (eDemoSSO::$allowRegister) { ?>
 		<p><a href="<?= eDemoSSO::SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></p>
-		<?php } ?>
+		<?php }} ?>
 		<hr>
 		<p><a href="<?= eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></p>
 		<?php
