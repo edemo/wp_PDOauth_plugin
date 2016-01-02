@@ -89,10 +89,14 @@ class eDemoSSO {
 		### Create Text Domain For Translations
 		add_action( 'plugins_loaded', array( $this, 'textdomain' ) );
 	
-		### Show SSO data
+		### Admin page 
+		### User profile
 		add_action( 'show_user_profile', array ( $this, 'show_SSO_user_profile' ) );
 		add_action( 'edit_user_profile', array ( $this, 'show_SSO_user_profile' ) );
+		add_action( 'edit_user_profile_update', array ( $this, 'update_user_profile') );
+		
 		add_action( 'wp_login', array ( $this, 'get_SSO_assurances'), 10, 1);
+		add_filter( 'wp_authenticate_user', array( $this, 'authenticate_user'), 1 );
 		
 		### registering widgets
 		add_action( 'widgets_init', array ( $this, 'register_widgets' ) );
@@ -209,11 +213,16 @@ class eDemoSSO {
 		</div>
 		<p style="margin-top: 15px;"><?= (self::$allowLogin)?'':__('Sorry! Login with SSO service isn\'t allowed temporarily.', 'eDemo-SSO')?></p>
 	</div></div>
-	<?php }
+	<?php 
+	
+	
+	
+	}
  
-function show_SSO_user_profile( $user ) { ?>
- 
-	<hr>
+function show_SSO_user_profile( $user ) { 
+    if ( !current_user_can( 'edit_users' ) ) return;
+    ?>
+ 	<hr>
 	<h3><?= __( 'SSO user data', 'eDemo-SSO' )?></h3>
     <table class="form-table">
 		<div id="eDemoSSO-message-container"></div>
@@ -270,9 +279,62 @@ function show_SSO_user_profile( $user ) { ?>
 				<p class="description"><?= __('If you have here registered with your SSO account, that will be merged in this account with all activity data stored before. User data still remain.', 'eDemo-SSO' )?></p>
 			</td>
 		</tr>
-		<?php }?>
-     </table>
+		<?php }
+		?>
+    </table>
+    <h3>Ban user</h3>
+    <table class="form-table">
+    <tr>
+        <th >
+			<label for="EdemoSSO_disable_account"><?= __('Disable account:', 'eDemo-SSO')?></label>
+		</th>
+        <td>
+			<input name="EdemoSSO_disable_account" type="checkbox" id="EdemoSSO_disable_account" 
+				<?= (($this->is_account_disabled($user->ID))?'checked ':'') ?>
+				<?= (($user->ID==get_current_user_id())?'disabled readonly':'') ?>
+				/>
+			<p class="description"><?= __('Set to ban the user. User will can\'t login.', 'eDemo-SSO') ?></p>
+		</td>
+    </tr>
+    </table>	
 	<?php $this->messageSript('eDemoSSO-profilepage-message-container');
+	}
+
+	function is_account_disabled($user_id) {
+		return get_user_option( 'rc_banned', $user_id, false );
+	}
+
+	function update_user_profile() {
+		if ( !current_user_can( 'edit_users' ) ) return;
+        global $user_id;
+
+    // User cannot disable itself
+		if ( get_current_user_id() == $user_id ) return;
+
+	// Lock
+		if( isset( $_POST['EdemoSSO_disable_account'] ) && $_POST['EdemoSSO_disable_account'] ) {
+			$this->disable_user_account( $user_id );
+		} else { // Unlock
+			$this->enable_user_account( $user_id );
+		}
+    }
+
+	function disable_user_account( $user_id ){
+		update_user_option( $user_id, 'eDemoSSO_account_disabled', true, false );
+	}
+	function enable_user_account( $user_id ) {
+		update_user_option( $user_id, 'eDemoSSO_account_disabled', false, false );
+	}
+	
+	function authenticate_user( $user ) {
+
+		if ( is_wp_error( $user ) ) return $user;
+
+    // Return error if user account is banned
+		if ( get_user_option( 'eDemoSSO_account_disabled', $user->ID, false ) ) {
+			return new WP_Error( 'eDemoSSO_account_disabled', __('<strong>ERROR</strong>: This user account is disabled.', 'eDemo-SSO'), $user );
+		}
+		return $user;
 	}
 
 	//adding plugin texdomain
@@ -615,7 +677,14 @@ function show_SSO_user_profile( $user ) { ?>
 								$this->refreshUserMeta($ssoUser[0]->ID, Array(	'userid' => $user_data['userid'],
 																		'refresh_token' => $token['refresh_token'],
 																		'assurances' => $user_data['assurances'] ));
-								$this->error_message=($this->signinUser($ssoUser[0]))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
+								$response=$this->authenticate_user($ssoUser[0]);
+								if (!is_wp_error($response)) {
+									$this->error_message=($this->signinUser($ssoUser[0]))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
+								}
+								else {
+									error_log(json_encode($response));
+									$this->error_message=$response->get_error_message();
+								}
 							}
 							else {
 								if (self::$allowRegister) {
@@ -783,6 +852,7 @@ function show_SSO_user_profile( $user ) { ?>
 													'refresh_token' => $token['refresh_token'],
 													'assurances' => $user_data['assurances'] ));
 				wp_update_user( array('ID'=>$user_id, 'nickname'=> $display_name ));
+				update_user_option( $user_id, 'eDemoSSO_account_disabled', false, false );
 				if ($this->hide_adminbar) update_user_option( $user_id, 'show_admin_bar_front', false );
 				return $user_id;
 			}
