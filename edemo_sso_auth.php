@@ -31,6 +31,7 @@ class eDemoSSO {
 	const SSO_UIDVAR			= 'eDemoSSO_uid';
 	const SSO_SITE_URL			= 'https://sso.edemokraciagep.org/static/login.html';
 
+	
 	static $callbackURL;
 	public $error_message;
 	public $auth_message;
@@ -47,9 +48,10 @@ class eDemoSSO {
 	private $SSO_action;
 	private $needed_assurances;
 
-
 	function __construct() {
 		
+		if (!session_id()) session_start();
+					
 		add_option('eDemoSSO_appkey', '', '', 'yes');
 		add_option('eDemoSSO_secret', '', '', 'yes');
 		add_option('eDemoSSO_appname', '', '', 'yes');
@@ -71,6 +73,15 @@ class eDemoSSO {
 		$this->hide_adminbar = get_option('eDemoSSO_hide_adminbar');
 		$this->needed_assurances = get_option('eDemoSSO_needed_assurances');
 		$this->array_of_needed_assurances = ($this->needed_assurances)?explode(',',$this->needed_assurances):array();
+		
+		if (isset($_SESSION['eDemoSSO_auth_message'])) {
+			$this->auth_message=$_SESSION['eDemoSSO_auth_message'];
+			$_SESSION['eDemoSSO_auth_message']='';
+		}
+		if (isset($_SESSION['eDemoSSO_error_message'])) {
+			$this->error_message=$_SESSION['eDemoSSO_error_message'];
+			$_SESSION['eDemoSSO_error_message']='';
+		}
 		
 		### Adding sso callback function to rewrite rules
 		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
@@ -99,16 +110,19 @@ class eDemoSSO {
 		add_filter( 'wp_authenticate_user', array( $this, 'authenticate_user'), 1 );
 		
 		### registering widgets
-		add_action( 'widgets_init', array ( $this, 'register_widgets' ) );
+
 		
 		### adding page script
 		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
-		add_action( 'admin_enqueue_scripts', array ( $this, 'add_js') );
+//		add_action( 'admin_enqueue_scripts', array ( $this, 'add_js') );
 		
-		add_filter( 'do_parse_request',  array($this, 'do_parse_request'), 10, 3 );
-		add_filter( 'wp_headers', array($this, 'wp_headers_filter'), 10, 2);
-		add_action( 'wp_footer', array( $this, 'messageSript') );
+		add_filter( 'do_parse_request',  array( $this, 'do_parse_request'), 10, 3 );
+		add_filter( 'wp_headers', array( $this, 'wp_headers_filter'), 10, 2);
+//		add_action( 'wp_footer', array( $this, 'messageSript') );
+		add_action( 'admin_notices', array( $this, 'notice') );
+		add_action( 'admin_head', array( $this,'hide_update_notice_to_all_but_admin_users'), 1 );	
 	}
+	
 	function wp_headers_filter($headers, $wp){
 		return $headers;
 	}
@@ -156,14 +170,7 @@ class eDemoSSO {
 	
 //	static function get_callbackURL() {return self->$callbackURL;}
 	
-
 	
-	function register_widgets() {
-		register_widget( 'eDemoSSO_login' );
-	}
-	
-
-
 	function get_SSO_assurances($user_login) {
 		$user=get_user_by('login',$user_login);
 		$refresh_token=$this->get_refresh_token($user->ID);
@@ -220,7 +227,6 @@ class eDemoSSO {
 	}
  
 function show_SSO_user_profile( $user ) { 
-    if ( !current_user_can( 'edit_users' ) ) return;
     ?>
  	<hr>
 	<h3><?= __( 'SSO user data', 'eDemo-SSO' )?></h3>
@@ -255,6 +261,7 @@ function show_SSO_user_profile( $user ) {
 				<p class="description"><?= __('Downloads the assurences from the SSO service', 'eDemo-SSO' )?></p>
 			</td>
 		</tr>
+		<?php if ($user->data->user_login!=get_user_meta($user->ID, self::USERMETA_ID, true)) {;?>
 		<tr>
 			<th></th>
 			<td>
@@ -267,6 +274,7 @@ function show_SSO_user_profile( $user ) {
 			</td>
 		</tr>
 		<?php }
+		}
 		else if ($user->ID==get_current_user_id() and self::$allowBind){?>
 		<tr>
 			<th></th>
@@ -282,6 +290,7 @@ function show_SSO_user_profile( $user ) {
 		<?php }
 		?>
     </table>
+		<?php if ( current_user_can( 'edit_users' ) ) { ?>
     <h3>Ban user</h3>
     <table class="form-table">
     <tr>
@@ -297,11 +306,12 @@ function show_SSO_user_profile( $user ) {
 		</td>
     </tr>
     </table>	
-	<?php $this->messageSript('eDemoSSO-profilepage-message-container');
+	<?php }
+//		$this->messageSript('eDemoSSO-profilepage-message-container');
 	}
 
 	function is_account_disabled($user_id) {
-		return get_user_option( 'rc_banned', $user_id, false );
+		return get_user_option( 'eDemoSSO_account_disabled', $user_id, false );
 	}
 
 	function update_user_profile() {
@@ -580,7 +590,6 @@ function show_SSO_user_profile( $user ) {
 
 	function do_parse_request( $result, $wp, $extra_query_vars){
 		if (strpos($_SERVER['REQUEST_URI'],'/'.self::CALLBACK_URI)!==false) {
-			if (!session_id()) session_start();
 			if (isset($_GET['SSO_action'])) {
 				$this->SSO_action=$_GET['SSO_action'];
 				if (isset($_GET['code'])) {
@@ -593,6 +602,7 @@ function show_SSO_user_profile( $user ) {
 			}
 			if (isset($_GET[self::WP_REDIR_VAR])) {
 				$location=urldecode($_GET[self::WP_REDIR_VAR]);
+				error_log('redirect');
 				wp_redirect($location);
 				exit;
 			}
@@ -610,28 +620,77 @@ function show_SSO_user_profile( $user ) {
   function the_content_filter( $content ) {
     return $content;
   }
+	
+	public function get_user_by_SSO_id($ssouid) {
+		$users=get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $ssouid) );
+		if ($users) return $users[0];
+	}
+	
+	function hide_update_notice_to_all_but_admin_users() {
+		if (!current_user_can('update_core')) {
+			remove_action( 'admin_notices', 'update_nag', 3 );
+		}	
+	}
 
+	function notice(){
+		error_log('notice   error: '.$this->error_message);
+		error_log('notice message: '.$this->auth_message);		
+		if ($this->error_message) {
+			$class='error';
+			$message=$this->error_message; 
+		}
+		elseif ($this->auth_message) {
+			$message=$this->auth_message;
+			$class='notice notice-success';
+		}
+		else return;
+		?>
+		<div class="<?= $class ?>">
+			<p><?= $message ?></p>
+		</div>
+		<?php
+	}
+	
 	function do_action($action){
 		if ( wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
-			$uid=(isset($_REQUEST['self::SSO_UIDVAR'])?$_REQUEST['self::SSO_UIDVAR']:get_current_user_id());
+			error_log(json_encode($_REQUEST));
+			$uid=(isset($_REQUEST[self::SSO_UIDVAR])?$_REQUEST[self::SSO_UIDVAR]:get_current_user_id());
+			error_log('action: '.$action);
+			error_log('iud: '.$uid);
 			switch ($action){
 				case 'refresh':
 					if (self::has_user_SSO($uid)) {
-						if ($token=$this->request_new_token(get_user_meta($uid,self::USERMETA_TOKEN, true))) {
-							if ($user_data = $this->requestUserData()) {
-								if ($this->refreshUserMeta($uid,$user_data)) {
-									$this->error_message=__('Your SSO metadata has been refreshed successfully', 'eDemo-SSO');
+						if ($token=$this->request_new_token(get_user_meta( $uid, self::USERMETA_TOKEN, true ))) {
+							if ($user_data = $this->requestUserData($token['access_token'])) {
+								error_log('do_refresh userdata[userid]='.$user_data['userid']);
+								error_log('do_refresh getusermeta='.get_user_meta( $uid, self::USERMETA_ID, true ));
+								if ($user_data['userid']==get_user_meta( $uid, self::USERMETA_ID, true )) {
+									$user_data['refresh_token']=$token['refresh_token'];
+									if ($this->refreshUserMeta($uid,$user_data)) {
+										$_SESSION['eDemoSSO_auth_message']=($uid==get_current_user_id())?
+											__('Your SSO metadata has been refreshed successfully', 'eDemo-SSO'):
+											__('The user\'s SSO metadata has been refreshed successfully', 'eDemo-SSO');
+										error_log('do_refresh eDemoSSO_auth_message: '.$_SESSION['eDemoSSO_auth_message']);
+									}
+								}
+								else {
+								if ( $gotuser=$this->get_user_by_SSO_id($user_data['userid']))  { 
+									update_user_meta($gotuser->ID, self::USERMETA_TOKEN, $token['refresh_token']); 
+								}
+								$this->error_message=__('Someting went wrong, the userid is diffrent as expected', 'eDemo-SSO');
 								}
 							}
 						}
-						$_SESSION['eDemoSSO_auth_message']=$this->error_message;
+						$_SESSION['eDemoSSO_error_message']=$this->error_message;
 					}
 					break;
 				case 'unbind':
 					if (self::has_user_SSO($uid)) {
-						if ($this->deleteUserMeta($uid)) $message=__('Your SSO metadata has been deleted', 'eDemo-SSO');
-						else $message=__('Someting went wrong', 'eDemo-SSO');
-						$_SESSION['eDemoSSO_auth_message']=$message;
+						if ($this->deleteUserMeta($uid)) 
+							$_SESSION['eDemoSSO_auth_message'] = ($uid==get_current_user_id())?
+								__('Your SSO metadata has been deleted. You can\'t login with SSO service anymore.', 'eDemo-SSO'):
+								__('SSO metadata has been deleted. The user can\'t login with SSO service anymore.', 'eDemo-SSO');
+						else $_SESSION['eDemoSSO_error_message']=__('Someting went wrong', 'eDemo-SSO');
 					}
 					break;
 				case 'get_message':
@@ -644,6 +703,7 @@ function show_SSO_user_profile( $user ) {
 					}
 					echo json_encode(array('text'=>$message));
 					error_log('get_messages lefutott: '.$message);
+					error_log('');
 					exit;
 					break;
 			}
@@ -663,23 +723,24 @@ function show_SSO_user_profile( $user ) {
 				$this->access_token=$token['access_token'];
 				$this->refresh_token=$token['refresh_token'];
 				if ( $user_data = $this->requestUserData( $this->access_token ) and isset($this->SSO_action) ) {
-					$ssoUser = get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $user_data['userid']) );
+					$ssoUser = $this->get_user_by_SSO_id($user_data['userid']);
+//					$ssoUser = get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $user_data['userid']) );
 					switch ($this->SSO_action){ 
 						case 'register':
 							if (!$ssoUser and self::$allowRegister) {
-								if ( $user_id=$this->registerUser($user_data, $token)) {
-									$ssoUser[0]=get_user_by('id',$user_id);
+								if ( $user_id = $this->registerUser($user_data, $token)) {
+									$ssoUser = get_user_by( 'id', $user_id );
 								}
 								else $this->error_message=$user_id;
 							}
 						case 'login':
 							if ( $ssoUser ) {
-								$this->refreshUserMeta($ssoUser[0]->ID, Array(	'userid' => $user_data['userid'],
-																		'refresh_token' => $token['refresh_token'],
-																		'assurances' => $user_data['assurances'] ));
-								$response=$this->authenticate_user($ssoUser[0]);
+								$this->refreshUserMeta($ssoUser->ID, Array(	'userid' => $user_data['userid'],
+																			'refresh_token' => $token['refresh_token'],
+																			'assurances' => $user_data['assurances'] ));
+								$response=$this->authenticate_user($ssoUser);
 								if (!is_wp_error($response)) {
-									$this->error_message=($this->signinUser($ssoUser[0]))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
+									$this->error_message=($this->signinUser($ssoUser))?__('You are signed in', 'eDemo-SSO'):__("Can't log in", 'eDemo-SSO');
 								}
 								else {
 									error_log(json_encode($response));
@@ -695,15 +756,6 @@ function show_SSO_user_profile( $user ) {
 									$this->error_message = __('You haven\'t account here, registering with SSO service isn\'t allowed momentarily.<br/>Try to contact with the site administrator.', 'eDemo-SSO');
 								}
 							}
-							break;
-						case 'refresh':
-							if ( $ssoUser = get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $user_data['userid']) ) ) {
-								$this->refreshUserMeta($user_id, Array(	'userid' => $user_data['userid'],
-																		'refresh_token' => $token['refresh_token'],
-																		'assurances' => $user_data['assurances'] ));
-								$this->error_message=__("User's SSO data has been updated successfully", 'eDemo-SSO');
-							}
-							else $this->error_message=__("User not found", 'eDemo-SSO');
 							break;
 						case 'binding':
 							if (is_user_logged_in()) {
@@ -728,40 +780,44 @@ function show_SSO_user_profile( $user ) {
 	}
   
   // token requesting phase
-  function request_new_token($refresh_token) {
-	      $response = wp_remote_post( 'https://'.self::SSO_TOKEN_URI, array(
-                 'method' => 'POST',
-                'timeout' => 30,
-            'redirection' => 1,
-	          'httpversion' => '1.0',
-	             'blocking' => true,
-	              'headers' => array(),
-	                 'body' => array(  'grant_type' => 'refresh_token',
-				                       'refresh_token' => $refresh_token,
-										'client_id' => self::$appkey,
-										'client_secret' => $this->secret
-									   ),
-	              'cookies' => array(),
-	            'sslverify' => $this->sslverify ) );
-    if ( is_wp_error( $response )  ) {
-      $this->error_message = $response->get_error_message();
-      return false;
-    }
-    else {
-      $body = json_decode( $response['body'], true );
-      if (!empty($body)){
-        if ( isset( $body['error'] ) ) {
-          $this->error_message = __("The SSO-server's response: ", 'eDemo-SSO'). $body['error'];
-          return false;
-        }
-        else {
-			return $body;
+	function request_new_token($refresh_token) {
+		error_log($refresh_token);
+		$arr=array(	'method' => 'POST',
+					'timeout' => 30,
+					'redirection' => 1,
+					'httpversion' => '1.0',
+					'blocking' => true,
+					'headers' => array(),
+	                'body' => array('grant_type' => 'refresh_token',
+				                    'refresh_token' => $refresh_token,
+									'client_id' => self::$appkey,
+									'client_secret' => $this->secret
+									),
+					'cookies' => array(),
+					'sslverify' => $this->sslverify );
+				error_log(json_encode($arr));			
+		$response = wp_remote_post( 'https://'.self::SSO_TOKEN_URI, $arr );
+
+		if ( is_wp_error( $response )  ) {
+			$this->error_message = $response->get_error_message();
+			return false;
 		}
-      }
-        $this->error_message = __("Unexpected response cames from SSO Server", 'eDemo-SSO');
-        return false;
-    }
-  }
+		else {
+			error_log(json_encode($response));
+			$body = json_decode( $response['body'], true );
+			if (!empty($body)){
+				if ( isset( $body['errors'] ) ) {
+					$this->error_message = __("The SSO-server's response: ", 'eDemo-SSO'). $body['errors'];
+					return false;
+				}
+				else return $body;	
+			}
+			else {
+				$this->error_message = __("Unexpected response cames from SSO Server", 'eDemo-SSO');
+				return false;
+			}
+		}	
+	}
  
   function requestToken( $code ) {
     $response = wp_remote_post( 'https://'.self::SSO_TOKEN_URI, array(
@@ -789,7 +845,9 @@ function show_SSO_user_profile( $user ) {
           $this->error_message = __("The SSO-server's response: ", 'eDemo-SSO'). $body['errors'];
           return false;
         }
-        else return $body;
+        else
+			error_log(json_encode($body));
+			return $body;
       }
         $this->error_message = __("Unexpected response cames from SSO Server", 'eDemo-SSO');
         return false;
@@ -799,15 +857,17 @@ function show_SSO_user_profile( $user ) {
   // user data requesting phase, called if we have a valid token
   
   function requestUserData( $access_token ) {
+	error_log('requestUserData acces_token: '.$access_token);
 	if ($access_token=='') return false;
     $response = wp_remote_get( 'https://'.self::SSO_USER_URI, array(
                     'timeout' => 30,
                 'redirection' => 10,
                 'httpversion' => '1.0',
                    'blocking' => true,
-                    'headers' => array( 'Authorization' => 'Bearer '.$this->access_token ),
+                    'headers' => array( 'Authorization' => 'Bearer '.$access_token ),
                     'cookies' => array(),
                   'sslverify' => $this->sslverify ) );
+	error_log('request user data: '.json_encode($response));
     if ( is_wp_error( $response ) ) {
       $this->error_message = $response->get_error_message();
       return false;
@@ -868,14 +928,14 @@ function show_SSO_user_profile( $user ) {
 		update_user_meta( $user_id, self::USERMETA_ID, $data['userid'] );
 		update_user_meta( $user_id, self::USERMETA_TOKEN, $data['refresh_token'] );
 		update_user_meta( $user_id, self::USERMETA_ASSURANCES, json_encode($data['assurances']) );
-		return;
+		return true;
 	}
 	
 	function deleteUserMeta($user_id) {
 		delete_user_meta( $user_id, self::USERMETA_ID );
 		delete_user_meta( $user_id, self::USERMETA_TOKEN );
 		delete_user_meta( $user_id, self::USERMETA_ASSURANCES );
-		return;
+		return true;
 	}
   
   //  Logging in the user
@@ -887,16 +947,22 @@ function show_SSO_user_profile( $user ) {
 		return get_current_user_id()==$user->ID;
 	}
 
-	function messageSript($container){
+/*	function messageSript($container){
 		?>
 		<script type="text/javascript">
 			eDemo_SSO.callForMessage("<?= wp_create_nonce('get_message') ?>","<?= $container ?>")
 		</script>
 		<?php
-	}
+	}*/
+	
 } // end of class declaration
-
+global $eDemoSSO;
 if (!isset($eDemoSSO)) { $eDemoSSO = new eDemoSSO(); } 
+
+function register_widgets() {
+	register_widget( 'eDemoSSO_login' );
+}
+add_action( 'widgets_init', 'register_widgets' );
 
 class eDemoSSO_login extends WP_Widget {
 
@@ -906,6 +972,7 @@ class eDemoSSO_login extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) { 
+	global $eDemoSSO;
 	// Widget output
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		$current_user = wp_get_current_user(); 
@@ -915,23 +982,24 @@ class eDemoSSO_login extends WP_Widget {
 		<ul>
 		<?php if (is_user_logged_in()) { ?>
 		<p><?= __('Welcome ','eDemo-SSO').$current_user->display_name ?>!</p>
-		<?php } ?>
-		<div id="eDemoSSO-message-container"></div>
-		<?php if (is_user_logged_in()) { ?>
-		<?php if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO($current_user->ID)) { ?>
-		<li class="page-item"><a href="<?= eDemoSSO::SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
+		<?php } 
+		$eDemoSSO->notice();
+		if (is_user_logged_in()) { 
+			if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO($current_user->ID)) { ?>
+		<li><a href="<?= eDemoSSO::SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
 			<?php } ?>
-		<li class="page-item"><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></li>
-		<li class="page-item"><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></li>
+		<li><a href="<?= eDemoSSO::SSO_auth_action_link('refresh')?>"><?= __('Refresh SSO data','eDemo-SSO')?></a></li>	
+		<li><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></li>
+		<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></li>
 		<?php }
 		elseif (eDemoSSO::$allowLogin) { ?>
-		<li class="page-item"><a href="<?= eDemoSSO::SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
+		<li><a href="<?= eDemoSSO::SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
 		<?php if (eDemoSSO::$allowRegister) { ?>
-		<li class="page-item"><a href="<?= eDemoSSO::SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
+		<li><a href="<?= eDemoSSO::SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
 		<?php }} else {?>
 		<p><?= __('Sorry! Login with SSO service isn\'t allowed temporarily.', 'eDemo-SSO') ?></p>
 		<?php }?>
-		<li class="page-item"><a href="<?= eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
+		<li><a href="<?= eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
 		</ul>
 		<?= $args['after_widget'] ?>
 		<?php
