@@ -65,6 +65,11 @@ function SSO(test) {
 		console.log(status)
 		console.log(text)
 		console.log(xml)
+		var message=JSON.parse(text)
+		if (message.text!="") {
+			var container=document.getElementById('eDemoSSO-message-container')
+			container.innerHTML='<p class="notice">'+message.text+'</p>'
+		}
 	}
 }
 
