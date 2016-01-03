@@ -442,7 +442,7 @@ function show_SSO_user_profile( $user ) {
 								<label for="EdemoSSO_secret"><?= __( 'Application secret:', 'eDemo-SSO' ) ?></label>
 							</th>
 							<td>
-								<input type='text' size='40' maxlength='40' name='EdemoSSO_secret' id='EdemoSSO_secret' value='<?= $this->secret; ?>' />
+								<input type='text' size='40' maxlength='40' name='ype='text' size='40' maxlength='40' name='EdemoSSO_secret' id='EdemoSSO_secret' value='<?= $this->secret; ?>' />
 								<p class="description"><?= __( 'Application secret.', 'eDemo-SSO' ) ?></p>
 							</td>
 						</tr>
@@ -676,7 +676,7 @@ function show_SSO_user_profile( $user ) {
 			error_log('iud: '.$uid);
 			switch ($action){
 				case 'refresh':
-					if ($this->has_user_SSO($uid)) {
+					if (self::has_user_SSO($uid)) {
 						if ($token=$this->request_new_token(get_user_meta( $uid, self::USERMETA_TOKEN, true ))) {
 							if ($user_data = $this->requestUserData($token['access_token'])) {
 								error_log('do_refresh userdata[userid]='.$user_data['userid']);
@@ -702,7 +702,7 @@ function show_SSO_user_profile( $user ) {
 					}
 					break;
 				case 'unbind':
-					if ($this->has_user_SSO($uid)) {
+					if (self::has_user_SSO($uid)) {
 						if ($this->deleteUserMeta($uid)) 
 							$_SESSION['eDemoSSO_auth_message'] = ($uid==get_current_user_id())?
 								__('Your SSO metadata has been deleted. You can\'t login with SSO service anymore.', 'eDemo-SSO'):
@@ -767,7 +767,7 @@ function show_SSO_user_profile( $user ) {
 							else {
 								if ($this->allowRegister) {
 									$mstr=__('This user hasn\'t registered yet. Would you like to <a href="%s">register</a>?', 'eDemo-SSO');
-									$this->error_message = sprintf( wp_kses( $mstr, array( 'a' => array( 'href' => array('%s') ) ) ) , $this->SSO_auth_action_link('register') );
+									$this->error_message = sprintf( wp_kses( $mstr, array( 'a' => array( 'href' => array('%s') ) ) ) , self::SSO_auth_action_link('register') );
 								}
 								else {
 									$this->error_message = __('You haven\'t account here, registering with SSO service isn\'t allowed momentarily.<br/>Try to contact with the site administrator.', 'eDemo-SSO');
@@ -873,8 +873,7 @@ function show_SSO_user_profile( $user ) {
   
   // user data requesting phase, called if we have a valid token
   
-  function requestUserData( $access_token ) {
-	error_log('requestUserData acces_token: '.$access_token);
+  function requestUserData( erData acces_token: '.$access_token);
 	if ($access_token=='') return false;
     $response = wp_remote_get( 'https://'.self::SSO_USER_URI, array(
                     'timeout' => 30,
