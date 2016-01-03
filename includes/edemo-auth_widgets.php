@@ -1,6 +1,6 @@
 <?php
 /**
-* eDemo SSO auth plugin widgets
+* eDemo SSO auth plugin - widgets
 * 
 * - login widget
 *
@@ -8,10 +8,7 @@
 *
 */
 
-function register_widgets() {
-	register_widget( 'eDemoSSO_login' );
-}
-add_action( 'widgets_init', 'register_widgets' );
+### login widget
 
 class eDemoSSO_login extends WP_Widget {
 
@@ -37,7 +34,7 @@ class eDemoSSO_login extends WP_Widget {
 <?php
 
 		// welcome message 
-		if (is_user_logged_in()) { 
+		if ( is_user_logged_in() ) { 
 ?>
 			<p><?= __('Welcome ','eDemo-SSO').$current_user->display_name.'!' ?></p>
 <?php
@@ -48,26 +45,26 @@ class eDemoSSO_login extends WP_Widget {
 
 		// section for logged in users
 		if ( is_user_logged_in() ) { 
-			if ($eDemoSSO->allowBind and !$eDemoSSO->has_user_SSO($current_user->ID)) { 
+			if ($eDemoSSO->is_bind_allowed() and !$eDemoSSO->has_user_SSO($current_user->ID)) { 
 ?>
-			<li><a href="<?= $eDemoSSO->SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
+			<li><a href="<?= $eDemoSSO->get_SSO_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
 <?php
 			}
 ?>
-			<li><a href="<?= $eDemoSSO->SSO_auth_action_link('refresh') ?>"><?= __('Refresh SSO data','eDemo-SSO')?></a></li>	
+			<li><a href="<?= $eDemoSSO->get_SSO_action_link('refresh') ?>"><?= __('Refresh SSO data','eDemo-SSO')?></a></li>	
 			<li><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></li>
 			<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></li>
 <?php	
 		}
 		
 		// section for visitors
-		elseif ($eDemoSSO->allowLogin) { 
+		elseif ( $eDemoSSO->is_login_allowed() ) { 
 ?>
-			<li><a href="<?= $eDemoSSO->SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
+			<li><a href="<?= $eDemoSSO->get_SSO_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
 <?php
-			if ($eDemoSSO->allowRegister) { 
+			if ( $eDemoSSO->is_register_allowed() ) { 
 ?>
-			<li><a href="<?= $eDemoSSO->SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
+			<li><a href="<?= $eDemoSSO->get_SSO_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
 <?php
 			}
 		} 
@@ -79,7 +76,7 @@ class eDemoSSO_login extends WP_Widget {
 		
 		//section for all 
 ?>
-			<li><a href="<?= $eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
+			<li><a href="<?= $eDemoSSO->get_SSO_site_url() ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
 		</ul>
 		<?= $args['after_widget'] ?>
 <?php
