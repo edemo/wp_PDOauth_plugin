@@ -1,14 +1,30 @@
 <?php
-	/*
-		Plugin Name: eDemo SSO authentication
-		Plugin URI: 
-		Description: Allows you connect to the Edemo SSO server, and autenticate the users, who acting on your site
-		Version: 0.02
-		Author: Claymanus
-		Author URI:
-		Text Domain: eDemo-SSO
-		Domain Path: /languages
-	*/
+/*
+Plugin Name: eDemo SSO authentication
+Plugin URI: https://github.com/edemo/wp_oauth_plugin/wiki
+Description: Allows you connect to the Edemo SSO server, and autenticate the users, who acting on your site
+Version: 0.02
+Author: Claymanus
+Author URI: https://github.com/Claymanus
+License: GPL2
+
+{Plugin Name} is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+any later version.
+ 
+{Plugin Name} is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with {Plugin Name}. If not, see {License URI}.
+
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: eDemo-SSO
+Domain Path: /languages
+*/
 
 ### Version
 define( 'EDEMO_SSO_VERSION', 0.01 );
@@ -956,77 +972,9 @@ function show_SSO_user_profile( $user ) {
 	}*/
 	
 } // end of class declaration
+
 global $eDemoSSO;
 if (!isset($eDemoSSO)) { $eDemoSSO = new eDemoSSO(); } 
+require_once('edemo_sso_auth_widget.php' );
 
-function register_widgets() {
-	register_widget( 'eDemoSSO_login' );
-}
-add_action( 'widgets_init', 'register_widgets' );
-
-class eDemoSSO_login extends WP_Widget {
-
-	function __construct() {
-		// Instantiate the parent object
-		parent::__construct( false, 'eDemoSSO_login' );
-	}
-
-	function widget( $args, $instance ) { 
-	global $eDemoSSO;
-	// Widget output
-		$title = apply_filters( 'widget_title', $instance['title'] );
-		$current_user = wp_get_current_user(); 
-		?>
-		<?= str_replace('class="widget widget_edemosso_login', 'class="widget widget_links', $args['before_widget']) ?>
-		<?php if ( ! empty( $title ) ) echo $args['before_title'] . $title . $args['after_title']; ?>
-		<ul>
-		<?php if (is_user_logged_in()) { ?>
-		<p><?= __('Welcome ','eDemo-SSO').$current_user->display_name ?>!</p>
-		<?php } 
-		$eDemoSSO->notice();
-		if (is_user_logged_in()) { 
-			if (eDemoSSO::$allowBind and !eDemoSSO::has_user_SSO($current_user->ID)) { ?>
-		<li><a href="<?= eDemoSSO::SSO_auth_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
-			<?php } ?>
-		<li><a href="<?= eDemoSSO::SSO_auth_action_link('refresh')?>"><?= __('Refresh SSO data','eDemo-SSO')?></a></li>	
-		<li><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></li>
-		<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></li>
-		<?php }
-		elseif (eDemoSSO::$allowLogin) { ?>
-		<li><a href="<?= eDemoSSO::SSO_auth_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
-		<?php if (eDemoSSO::$allowRegister) { ?>
-		<li><a href="<?= eDemoSSO::SSO_auth_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
-		<?php }} else {?>
-		<p><?= __('Sorry! Login with SSO service isn\'t allowed temporarily.', 'eDemo-SSO') ?></p>
-		<?php }?>
-		<li><a href="<?= eDemoSSO::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
-		</ul>
-		<?= $args['after_widget'] ?>
-		<?php
-	}
-
-	function update( $new_instance, $old_instance ) {
-		// Save widget options
-		$instance = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		return $instance;
-
-	}
-
-	function form( $instance ) {
-		// Output admin widget options form
-		
-		// widget title
-		if ( isset( $instance[ 'title' ] ) ) $title = $instance[ 'title' ];
-		else $title = __( 'New title', 'eDemo-SSO' );
-		
-		// Widget admin form
-		?>
-		<p>
-			<label for="<?= $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
-			<input class="widefat" id="<?= $this->get_field_id( 'title' ); ?>" name="<?= $this->get_field_name( 'title' ); ?>" type="text" value="<?= esc_attr( $title ); ?>" />
-		</p>
-		<?php
-	}
-}
 ?>
