@@ -1,4 +1,9 @@
 <?php
+
+/*
+* Hooks:
+* edemo_auth_do_update_options
+*/
 class edemo_auth_admin extends edemo_auth {
 
 	function __construct() {
@@ -10,8 +15,25 @@ class edemo_auth_admin extends edemo_auth {
 		add_action( 'edit_user_profile', array ( $this, 'show_SSO_user_profile' ) );
 		add_action( 'edit_user_profile_update', array ( $this, 'update_user_profile') );
 		add_action( 'admin_enqueue_scripts', array ( $this, 'add_js') );
+		
+		# Hook for hiding admin notices if the current user isn't an admin
+		add_action( 'admin_head', array( $this,'hide_update_notice_to_all_but_admin_users'), 1 );
+		
+		# Adding admin page
+		add_action('admin_menu', array( $this, 'addAdminPage' ) );
 	}
+	
 
+	
+	
+	
+	# to hiding admin notices if the current user isn't an admin
+	function hide_update_notice_to_all_but_admin_users() {
+		if (!current_user_can('update_core')) {
+			remove_action( 'admin_notices', 'update_nag', 3 );
+		}	
+	}
+	
 	#
 	# Options/admin panel
 	#
@@ -28,6 +50,8 @@ class edemo_auth_admin extends edemo_auth {
 		
 		if (isset($_POST['edemosso_update'])) {
 //			check_admin_referer();    // EZT MAJD MEG KELLENE NÉZNI !!!!!
+
+			do_action( 'edemo_auth_do_update_options' );
 
 			// Update options 
 			$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
@@ -258,4 +282,5 @@ function show_SSO_user_profile( $user ) {
 	<?php }
 	}
 }
+
 ?>

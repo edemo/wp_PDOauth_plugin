@@ -26,6 +26,11 @@ Text Domain: eDemo-SSO
 Domain Path: /languages
 */
 
+# If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
 ### Version
 define( 'EDEMO_AUTH_VERSION', 0.1 );
 global $eDemoSSO;

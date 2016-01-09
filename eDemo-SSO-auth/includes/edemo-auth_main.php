@@ -65,62 +65,70 @@ class edemo_auth {
 			$_SESSION['eDemoSSO_error_message']='';
 		}
 		
-		### Adding sso callback function to rewrite rules
+		# Adding sso callback function to rewrite rules
 		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules' ) );
+		
+		# Adding SSO login to the login screen
 		add_action( 'login_footer', array( $this, 'add_login_button' ) );
-		add_filter( 'the_content', array( $this, 'the_content_filter' ) );
-
-		### Plugin activation hooks
+		
+		# Plugin activation hooks
 		register_activation_hook( __FILE__, array( $this, 'plugin_activation' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivation' ) );
 		
-		add_shortcode('SSOsignit', array( $this, 'sign_it' ) );	
-		
-		### Adding admin page
-		add_action('admin_menu', array( $this, 'addAdminPage' ) );
-
-		### Create Text Domain For Translations
+		# Create Text Domain For Translations
 		add_action( 'plugins_loaded', array( $this, 'textdomain' ) );
 	
+		# for refreshing the SSO metadata
 		add_action( 'wp_login', array ( $this, 'get_SSO_assurances'), 10, 1);
+		
+		# for disable account functionality
 		add_filter( 'wp_authenticate_user', array( $this, 'authenticate_user'), 1 );
 		
-		// adding page script
+		# adding page script
 		add_action( 'wp_enqueue_scripts', array ( $this, 'add_js') );
 
 		add_filter( 'do_parse_request',  array( $this, 'do_parse_request'), 10, 3 );
 		add_action( 'admin_notices', array( $this, 'notice') );
-		add_action( 'admin_head', array( $this,'hide_update_notice_to_all_but_admin_users'), 1 );
+		
+		# registering widgets
+		if (!is_admin()) add_action( 'widgets_init', array( $this, 'register_widgets' ) );
+		
+	} // end __construct
 
-		// registering widgets
-		if (!is_admin()) add_action( 'widgets_init', array( $this, 'register_widgets' ) );		
-	}
-
-	function get_SSO_site_url() {
+	# gets the SSO server URL from the constant defined in the 'com' object
+	# used by the widget class
+	public function get_SSO_site_url() {
 		return $this->com->get_SSO_site_url();
 	}
 
-	function register_widgets() {
+	# registering login widget
+	public function register_widgets() {
 		register_widget( 'eDemoSSO_login' );
 	}
 	
-	// adding page script
-	function add_js(){
+	# adding page script
+	# the script hasn't any functionality yet, for later use defined here
+	public function add_js(){
 		wp_enqueue_script( 'pagescript', plugins_url( '/../js/edemo_sso_auth.js' , __FILE__ ));	
 	}
 
 	#
-	#property interfaces
+	# property interfaces
 	#
 	
+	# used by the widget class
+	
+	# Getting the bind account option
 	public function is_bind_allowed() {
 		return $this->allowBind;
 	}
 	
+	# Getting the allow register with SSO option
 	public function is_register_allowed() {
 		return $this->allowRegister;
 	}
 	
+	# Getting the allow login with SSO option
 	public function is_login_allowed() {
 		return $this->allowLogin;
 	}
@@ -129,7 +137,7 @@ class edemo_auth {
 	# Helper functions
 	#
 	
-	private function make_urivars($params_array){
+	protected function make_urivars($params_array){
 		$retval='';
 		foreach ($params_array as $key=>$value) {
 			$retval.='&'.$key.'='.$params_array[$key];
@@ -138,10 +146,12 @@ class edemo_auth {
 		return $retval;
 	}
 	
-	public function SSO_redirect_uri($params_array){
+	protected function SSO_redirect_uri($params_array){
 		return '&redirect_uri='.urlencode($this->callbackURL.'?'.$this->make_urivars($params_array).'&'.self::WP_REDIR_VAR.'='.$_SERVER['REQUEST_URI']);
 	}
 
+	
+	
 	public function get_SSO_action_link($action){
 		return 'https://'.$this->com->get_SSO_auth_uri().'?response_type=code&client_id='.$this->appkey.$this->SSO_redirect_uri(array('SSO_action'=>$action));
 	}
@@ -228,19 +238,21 @@ class edemo_auth {
 		update_user_option( $user_id, 'eDemoSSO_account_disabled', false, false );
 	}
 	
-	function authenticate_user( $user ) {
+	# Used for disable account functionality
+	
+	public function authenticate_user( $user ) {
 
 		if ( is_wp_error( $user ) ) return $user;
-
-    // Return error if user account is banned
+		// Return error if user account is banned
 		if ( get_user_option( 'eDemoSSO_account_disabled', $user->ID, false ) ) {
 			return new WP_Error( 'eDemoSSO_account_disabled', __('<strong>ERROR</strong>: This user account is disabled.', 'eDemo-SSO'), $user );
 		}
 		return $user;
 	}
 
-	//adding plugin texdomain
-	function textdomain() {
+	# Adding plugin texdomain
+	
+	public function textdomain() {
 		load_plugin_textdomain( 'eDemo-SSO', false, plugin_basename( dirname( __FILE__ ) ) . '/../languages' );
 	}
 
@@ -250,42 +262,7 @@ class edemo_auth {
 	// Actual functionality
 	//
 	
-  // shortcode for 'sign it' function
- 	// [SSOsignit text="Sign it if you agree with" thanks="Thank you" signed="Has been signed"]
 
-  function sign_it( $atts )	{
-    $a = shortcode_atts( array(
-        'text'   => __('Sign it if you agree with'),
-        'thanks' => __('Thanks for your sign'),
-        'signed' => __('You signed yet, thanks'),
-          ), $atts );
-
-	if ( !is_user_logged_in() ) {
-		return '
-		<a href="https://'.$this->com->get_SSO_auth_uri().'?response_type=code&client_id='.$this->appkey.'&redirect_uri='.urlencode($this->callbackURL.'?wp_redirect='.$_SERVER['REQUEST_URI'].'&signed=true').'">
-			<div class="btn">
-				'.$a['text'].'
-			</div>
-		</a>';
-    }
-	
-    elseif ( isset( $_GET['signed'] ) ) {
-      if ($this->is_signed()) return '<div class="button SSO_signed">'.$a['signed'].'</div>';
-      else {
-        $this->do_sign_it();
-        return '<div class="button SSO_signed">'.$a['thanks'].'</div>';
-      }
-    } 
-    return '<a href="'.get_permalink().'?signed=true"><div class="btn">'.$a['text'].'</div></a>';
-	}
-
-  // saving the signing event in database
-  function do_sign_it(){}
-  
-  // checking if is it signed yet
-  function is_signed(){ 
-    return true ;
-  }
   
 	//
 	// Hooks
@@ -346,22 +323,13 @@ class edemo_auth {
   // displaying auth error message in the top of content
   //
   
-	// we will found out what is the best way to display this (pop-up or anithing else) 
-  
-  function the_content_filter( $content ) {
-    return $content;
-  }
 	
 	public function get_user_by_SSO_id($ssouid) {
 		$users=get_users( array('meta_key' => self::USERMETA_ID, 'meta_value' => $ssouid) );
 		if ($users) return $users[0];
 	}
 	
-	function hide_update_notice_to_all_but_admin_users() {
-		if (!current_user_can('update_core')) {
-			remove_action( 'admin_notices', 'update_nag', 3 );
-		}	
-	}
+
 
 	function notice(){
 		if ($this->error_message) {
