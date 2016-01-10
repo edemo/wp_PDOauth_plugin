@@ -4,6 +4,7 @@
 * Hooks:
 * edemo_auth_do_update_options
 */
+
 class edemo_auth_admin extends edemo_auth {
 
 	function __construct() {

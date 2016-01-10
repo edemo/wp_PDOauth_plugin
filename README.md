@@ -1,4 +1,4 @@
-# MSSO login plugin for Worpress
+# MSSO login plugin for Wordpress
 
 Ez egy wordpress plugin. 
 Segítségével az eDemo SSO autentikációs szolgáltatást igénybe véve lehet bejelentkezni a wordpress-be.
