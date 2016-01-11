@@ -15,7 +15,7 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 	function __construct() {
 		// Instantiate the parent object
 		$this->widget_vars = array ( 
-			'common'		=> new eDemo_SSOauth_functions(),
+			'common'		=> new eDemo_SSOauth_Base(),
 			'allowBind'		=> get_option('eDemoSSO_allowBind'),
 			'allowRegister' => get_option('eDemoSSO_allowRegister'),
 			'allowLogin'	=> get_option('eDemoSSO_allowLogin')
@@ -42,7 +42,7 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		// welcome message 
 		if ( is_user_logged_in() ) { 
 ?>
-			<p><?= __('Welcome ','eDemo-SSO').$current_user->display_name.'!' ?></p>
+			<p><?= __('Welcome ',eDemo_SSOauth::TEXTDOMAIN).$current_user->display_name.'!' ?></p>
 <?php
 		}
 		
@@ -53,36 +53,36 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		if ( is_user_logged_in() ) { 
 			if ($allowBind and !$common->has_user_SSO($current_user->ID)) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('binding') ?>"><?= __('Bind SSO account','eDemo-SSO')?></a></li>
+			<li><a href="<?= $common->get_SSO_action_link('binding') ?>"><?= __('Bind SSO account',eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 <?php
 			}
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('refresh') ?>"><?= __('Refresh SSO data','eDemo-SSO')?></a></li>	
-			<li><a href="/wp-admin/profile.php"><?=__('Show user profile', 'eDemo-SSO')?></a></li>
-			<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', 'eDemo-SSO')?></a></li>
+			<li><a href="<?= $common->get_SSO_action_link('refresh') ?>"><?= __('Refresh SSO data',eDemo_SSOauth::TEXTDOMAIN)?></a></li>	
+			<li><a href="/wp-admin/profile.php"><?=__('Show user profile', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
+			<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 <?php	
 		}
 		
 		// section for visitors
 		elseif ( $allowLogin ) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('login')    ?>"><?= __('Login with SSO', 'eDemo-SSO')    ?></a></li>
+			<li><a href="<?= $common->get_SSO_action_link('login')    ?>"><?= __('Login with SSO', eDemo_SSOauth::TEXTDOMAIN)    ?></a></li>
 <?php
 			if ( $allowRegister ) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('register') ?>"><?= __('Register with SSO', 'eDemo-SSO') ?></a></li>
+			<li><a href="<?= $common->get_SSO_action_link('register') ?>"><?= __('Register with SSO', eDemo_SSOauth::TEXTDOMAIN) ?></a></li>
 <?php
 			}
 		} 
 		else {
 ?>
-			<p><?= __('Sorry! Login with SSO service isn\'t allowed temporarily.', 'eDemo-SSO') ?></p>
+			<p><?= __('Sorry! Login with SSO service isn\'t allowed temporarily.', eDemo_SSOauth::TEXTDOMAIN) ?></p>
 <?php
 		}
 		
 		//section for all 
 ?>
-			<li><a href="<?= eDemo_SSOauth::SSO_SITE_URL ?>"><?= __('SSO services', 'eDemo-SSO')?></a></li>
+			<li><a href="<?= eDemo_SSOauth::SSO_SITE_URL ?>"><?= __('SSO services', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 		</ul>
 		<?= $args['after_widget'] ?>
 <?php
@@ -100,7 +100,7 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		
 		// widget title
 		if ( isset( $instance[ 'title' ] ) ) $title = $instance[ 'title' ];
-		else $title = __( 'New title', 'eDemo-SSO' );
+		else $title = __( 'New title', eDemo_SSOauth::TEXTDOMAIN );
 		
 		// Widget admin form
 ?>
