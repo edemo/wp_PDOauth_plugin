@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains the common function container class
+ * This file contains the plugin's base class
  *
  * @link       https://github.com/edemo/wp_oauth_plugin/wiki
  * @since      0.0.1
@@ -9,7 +9,7 @@
  * @subpackage eDemo-SSOauth/includes
  */
 /**
- * Communication class 
+ * Base plugin class 
  *
  * This class defines all functionality which is commonly used by the plugin
  *
@@ -18,23 +18,7 @@
  * @subpackage eDemo-SSOauth/includes
  * @author     Claymanus
  */
- class eDemo_SSOauth_functions {
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    0.0.1
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    0.0.1
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
+ class eDemo_SSOauth_Base {
 	/**
 	 * The ID of this plugin.
 	 *
@@ -79,9 +63,12 @@
 		$this->appkey = get_option( 'eDemoSSO_appkey' );
 		$this->secret = get_option( 'eDemoSSO_secret' );
 		$this->sslverify = get_option( 'eDemoSSO_sslverify' );
-		$this->allowBind=get_option('eDemoSSO_allowBind');
-		$this->allowRegister=get_option('eDemoSSO_allowRegister');
-		$this->allowLogin=get_option('eDemoSSO_allowLogin');
+		$this->allowBind = get_option('eDemoSSO_allowBind');
+		$this->allowRegister = get_option('eDemoSSO_allowRegister');
+		$this->allowLogin = get_option('eDemoSSO_allowLogin');
+		$this->needed_assurances = get_option('eDemoSSO_needed_assurances');
+        $this->default_role = get_option('eDemoSSO_default_role');
+		$this->hide_adminbar = get_option('eDemoSSO_hide_adminbar');
 		$this->array_of_needed_assurances = ($this->needed_assurances)?explode(',',$this->needed_assurances):array();
 	}
 	/**

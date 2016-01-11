@@ -133,7 +133,7 @@ class eDemo_SSOauth {
 		/**
 		 * The class contains commonly used functions
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class_edemo-ssoauth_functions.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class_edemo-ssoauth_base.php';
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
@@ -198,10 +198,10 @@ class eDemo_SSOauth {
 //		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 //		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		$this->loader->add_action( 'widgets_init', $plugin_admin->common, 'register_widgets' );
+		$this->loader->add_action( 'widgets_init', $plugin_admin, 'register_widgets' );
 		
 		#display messages in the notice container on the admin pages
-		$this->loader->add_action( 'admin_notices', $plugin_admin->common, 'notice');
+		$this->loader->add_action( 'admin_notices', $plugin_admin, 'notice');
 
 		# show user profile
 		$this->loader->add_action( 'show_user_profile', $plugin_admin, 'show_SSO_user_profile' );
@@ -229,7 +229,7 @@ class eDemo_SSOauth {
 		$plugin_public = new eDemo_SSOauth_Public( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		# Adding SSO login area to the bottom of login screen
-		$this->loader->add_action( 'login_footer', $plugin_public, 'add_login_button' );
+		$this->loader->add_action( 'login_footer', $plugin_public, 'login_page_extension' );
 		# Adding sso callback function to rewrite rules
 		$this->loader->add_action( 'generate_rewrite_rules', $plugin_public, 'add_rewrite_rules' );	
 		
@@ -238,7 +238,7 @@ class eDemo_SSOauth {
 		
 		# for disable account functionality
 		$this->loader->add_filter( 'wp_authenticate_user', $plugin_public, 'authenticate_user', 1 );
-		$this->loader->add_action( 'widgets_init', $plugin_public->common, 'register_widgets' );
+		$this->loader->add_action( 'widgets_init', $plugin_public, 'register_widgets' );
 		$this->loader->add_filter( 'do_parse_request', $plugin_public, 'do_parse_request', 10, 3 );
 	}
 	/**

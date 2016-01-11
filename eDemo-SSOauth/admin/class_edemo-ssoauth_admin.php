@@ -18,7 +18,7 @@
  * @subpackage eDemo-SSOauth/admin
  * @author     Claymanus
  */
-class eDemo_SSOauth_Admin {
+class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	/**
 	 * The ID of this plugin.
 	 *
@@ -35,8 +35,6 @@ class eDemo_SSOauth_Admin {
 	 * @var      string    $version    The current version of this plugin.
 	 */
 	private $version;
-	private $error_message;
-	private $success_message;
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -47,7 +45,7 @@ class eDemo_SSOauth_Admin {
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->common = new eDemo_SSOauth_functions();
+		parent::__construct( );
 	}
 	/**
 	 * Register the stylesheets for the admin area.
@@ -275,14 +273,14 @@ function show_SSO_user_profile( $user ) {
 				<p><?=$_SESSION['eDemoSSO_auth_message']?></p>
 			</div>
 		<?php }			
-		if ($this->common->has_user_SSO($user->ID)) {?> 
+		if ($this->has_user_SSO($user->ID)) {?> 
         <tr>
             <th>SSO id</th>
-            <td><?= $this->common->get_user_SSO_id($user->ID) ?></td>
+            <td><?= $this->get_user_SSO_id($user->ID) ?></td>
 		</tr>
 		<tr>
             <th>SSO token</th>
-            <td><?= $this->common->get_refresh_token($user->ID) ?></td>
+            <td><?= $this->get_refresh_token($user->ID) ?></td>
 		</tr>
 		<tr>			
 			<th>SSO assurances</th>
@@ -292,19 +290,19 @@ function show_SSO_user_profile( $user ) {
 			<th></th>
 			<td>
 				<p>
-					<a class="button" href="<?=$this->common->get_action_link('refresh',$user->ID)?>">
+					<a class="button" href="<?=$this->get_action_link('refresh',$user->ID)?>">
 						<?= __( 'Refresh', eDemo_SSOauth::TEXTDOMAIN )?>
 					</a>
 				</p>
 				<p class="description"><?= __('Downloads the assurences from the SSO service', eDemo_SSOauth::TEXTDOMAIN )?></p>
 			</td>
 		</tr>
-		<?php if ($user->data->user_login!=$this->common->get_user_SSO_id($user->ID)) {;?>
+		<?php if ($user->data->user_login!=$this->get_user_SSO_id($user->ID)) {;?>
 		<tr>
 			<th></th>
 			<td>
 				<p>
-					<a class="button" href="<?=$this->common->get_action_link('unbind',$user->ID)?>">
+					<a class="button" href="<?=$this->get_action_link('unbind',$user->ID)?>">
 						<?= __( 'Unbind', eDemo_SSOauth::TEXTDOMAIN )?>
 					</a>
 				</p>
@@ -318,7 +316,7 @@ function show_SSO_user_profile( $user ) {
 			<th></th>
 			<td>
 				<p><?__( "For this account hasn't SSO account binded", eDemo_SSOauth::TEXTDOMAIN )?><p>
-				<a class="button" href="<?=$this->common->get_SSO_action_link('binding',$user->ID)?>">
+				<a class="button" href="<?=$this->get_SSO_action_link('binding',$user->ID)?>">
 					<?= __( 'Bind SSO account', eDemo_SSOauth::TEXTDOMAIN )?>
 				</a>
 				<p class="description"><?= __('This will bind your account with an SSO account. If you are logged in to your SSO account, this goes automaticly. Otherwise you will be redirected to the SSO login page served by SSO Service. ', eDemo_SSOauth::TEXTDOMAIN )?></p>
@@ -337,7 +335,7 @@ function show_SSO_user_profile( $user ) {
 		</th>
         <td>
 			<input name="EdemoSSO_disable_account" type="checkbox" id="EdemoSSO_disable_account" 
-				<?= (($this->common->is_account_disabled($user->ID))?'checked ':'') ?>
+				<?= (($this->is_account_disabled($user->ID))?'checked ':'') ?>
 				<?= (($user->ID==get_current_user_id())?'disabled readonly':'') ?>
 				/>
 			<p class="description"><?= __('Set this to ban the user. User will can\'t login.', eDemo_SSOauth::TEXTDOMAIN) ?></p>
