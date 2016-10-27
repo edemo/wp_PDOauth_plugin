@@ -1,9 +1,4 @@
-QueryStringFunc = function (win) { //http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-url-parameter
-  // This function is anonymous, is executed immediately and 
-  // the return value is assigned to QueryString!
-  win=win || window 			// to be testable
-  var query_string = {};
-  var query = win.location.search.substring(1);
+var uribase=""
 function SSO(test) {
 	var self = this
 	test=test || { debug: false }
@@ -48,7 +43,34 @@ function SSO(test) {
 		xmlhttp.open( "GET", uribase + uri, true);
 		xmlhttp.send();
 	}
+	
+	SSO.prototype.showMessageBox = function() {
+		var messageDiv=document.createElement('div')
+		messageDiv.id='SSO-message-container'
+		messageDiv.setAttribute("class", "SSO-message-container")
+		document.body.append(messageDiv)
+	}
 
+	SSO.prototype.removeMessageBox = function() {
+		document.body.removeChild(document.getElementById('SSO-message-container'))
+	}
+
+	SSO.prototype.callForMessage = function(wpNonce, container) {
+		this.container=container || 'modalwindow';
+		this.ajaxget('/sso_callback?_wpnonce='+wpNonce+'&SSO_action=get_message', this.messageCallback)
+	}
+	
+	SSO.prototype.messageCallback = function(status, text, xml) {
+		console.log(self.container)
+		console.log(status)
+		console.log(text)
+		console.log(xml)
+		var message=JSON.parse(text)
+		if (message.text!="") {
+			var container=document.getElementById('eDemoSSO-message-container')
+			container.innerHTML='<p class="notice">'+message.text+'</p>'
+		}
+	}
 }
 
 eDemo_SSO = new SSO();
