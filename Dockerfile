@@ -7,7 +7,11 @@ RUN apt-get update
 
 RUN apt-get -uy upgrade
 
-RUN apt-get -y install wordpress vim less xvfb firefox chromium-chromedriver wget git
+RUN echo 'mysql-server mysql-server/root_password password password' | debconf-set-selections
+RUN echo 'mysql-server mysql-server/root_password_again password password' | debconf-set-selections
+
+RUN apt-get -y install wordpress vim less xvfb firefox chromium-chromedriver \
+    wget git mysql-server iputils-ping vnc4server net-tools strace fvwm
 
 RUN apt-get -y install make
 

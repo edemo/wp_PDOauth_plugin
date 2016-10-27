@@ -1,0 +1,54 @@
+LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+LoadModule dir_module /usr/lib/apache2/modules/mod_dir.so
+LoadModule env_module /usr/lib/apache2/modules/mod_env.so
+LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+LoadModule vhost_alias_module /usr/lib/apache2/modules/mod_vhost_alias.so
+
+TypesConfig /etc/mime.types
+LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
+
+LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so
+LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+
+	StartServers			 5
+	MinSpareServers		  5
+	MaxSpareServers		 10
+	MaxRequestWorkers	  150
+	MaxConnectionsPerChild   0
+
+
+ServerRoot PWD
+LogLevel debug
+ErrorLog ./shippable/Error.log
+#ErrorLog ./tmp/ErrorLog
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+CustomLog ./shippable/CustomLog common
+PidFile /tmp/httpd.pid
+Mutex file:/tmp default
+Timeout  300
+KeepAliveTimeout 5
+
+Listen 127.0.0.1:8080
+
+<FilesMatch ".+\.ph(p[3457]?|t|tml)$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+<FilesMatch ".+\.phps$">
+    SetHandler application/x-httpd-php-source
+</FilesMatch>
+# Deny access to files without filename (e.g. '.php')
+<FilesMatch "^\.ph(p[3457]?|t|tml|ps)$">
+    Require all denied
+</FilesMatch>
+
+LoadModule php7_module /usr/lib/apache2/modules/libphp7.0.so
+
+DocumentRoot PWD/wordpress
+ServerName blog.example.com
+DirectoryIndex index.php index.html
+
+
