@@ -4,6 +4,7 @@ $mock_data = array();
 $mock_data["options"] = array();
 $mock_data["script_queue"] = array();
 $mock_data["users"] = array();
+$mock_data["admin"] = false;
 
 function add_option($name, $value, $arg3, $arg4) {
 	global $mock_data;
@@ -24,11 +25,24 @@ function plugins_url($uri,$base) {
 	return "http://plugins.url/".$base."$uri";
 }
 
+function plugin_dir_path() {
+	return getcwd()."/eDemo-SSOauth/";
+}
+
 function get_user_meta($userid, $metaid, $default_return) {
 	global $mock_data;
 	return $mock_data["users"][$userid][$metaid];
 }
 
+function set_admin($value) {
+	global $mock_data;
+	$mock_data["admin"] = $value;
+}
+
+function is_admin() {
+	global $mock_data;
+	return $mock_data["admin"];
+}
 function register_widget($name) {
 	global $mock_data;
 	$mock_data["widgets"] = $name;
@@ -37,7 +51,8 @@ function register_widget($name) {
 function get_site_url($arg1,$arg2, $arg3) {
 }
 
-function add_action($name, $args) {
+function add_action($name, $arg1, $arg3) {
+	print("add_action ".$name.",".$arg1.",".$arg3);
 }
 
 function add_shortcode($name, $args) {
