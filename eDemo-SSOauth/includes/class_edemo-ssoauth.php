@@ -33,17 +33,17 @@ class eDemo_SSOauth {
 	const USERMETA_TOKEN		= 'eDemoSSO_refresh_token';
 	const USERMETA_ASSURANCES	= 'eDemoSSO_assurances';
 	const WP_REDIR_VAR			= 'wp_redirect';
-	const SSO_LOGIN_URL			= 'sso.edemokraciagep.org/static/login.html';
+	const SSO_LOGIN_URL			= 'sso.edemokraciagep.org/login.html';
 	const SSO_UIDVAR			= 'eDemoSSO_uid';
 	/*
 	 * constants for SSO comminication interface
 	 */
 	const SSO_DOMAIN	= 'sso.edemokraciagep.org';
-	const SSO_TOKEN_URI	= 'sso.edemokraciagep.org/v1/oauth2/token';
-	const SSO_AUTH_URI	= 'sso.edemokraciagep.org/v1/oauth2/auth';
-	const SSO_USER_URI	= 'sso.edemokraciagep.org/v1/users/me';
-	const SSO_USERS_URI	= 'sso.edemokraciagep.org/v1/users';
-	const SSO_SITE_URL	= 'https://sso.edemokraciagep.org/static/login.html';
+	const SSO_TOKEN_URI	= 'sso.edemokraciagep.org/ada/v1/oauth2/token';
+	const SSO_AUTH_URI	= 'sso.edemokraciagep.org/ada/v1/oauth2/auth';
+	const SSO_USER_URI	= 'sso.edemokraciagep.org/ada/v1/users/me';
+	const SSO_USERS_URI	= 'sso.edemokraciagep.org/ada/v1/users';
+	const SSO_SITE_URL	= 'https://sso.edemokraciagep.org/login.html';
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
@@ -70,6 +70,7 @@ class eDemo_SSOauth {
 	 */
 	protected $version;
 	protected $options = array(
+					'eDemoSSO_serviceURI',
 					'eDemoSSO_appkey',
 					'eDemoSSO_secret',
 					'eDemoSSO_appname',
@@ -82,7 +83,6 @@ class eDemo_SSOauth {
 					'eDemoSSO_needed_assurances',
 					'eDemoSSO_callback_uri'
 					);
-
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -285,7 +285,7 @@ class eDemo_SSOauth {
 	 */
 	private function add_options() {
 		foreach ( $this->options as $option){
-			add_option( $option, '', '', 'yes');
+			error_log($option." - ".(add_option( $option, '', '', 'yes')?"true":"false")." - ".get_option($option,"nincs"));
 		}
 	}
 

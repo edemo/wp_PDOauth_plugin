@@ -113,6 +113,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		if (isset($_POST['edemosso_update'])) {
 
 			// Update options 
+			$this->serviceURI 		= $_POST[ 'EdemoSSO_serviceURI' ];
 			$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
 			$this->appkey			= $_POST['EdemoSSO_appkey'];
 			$this->secret			= $_POST['EdemoSSO_secret'];
@@ -125,8 +126,9 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 			$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
 			$this->callback_uri		= $_POST['EdemoSSO_callback_uri'];
 
-			update_option( 'eDemoSSO_appkey'   			, $this->appkey   );
-			update_option( 'eDemoSSO_secret'   			, $this->secret   );
+			
+			update_option( 'eDemoSSO_serviceURI'   		, $this->serviceURI );
+			update_option( 'eDemoSSO_secret'   			, $this->secret );
 			update_option( 'eDemoSSO_appname'  			, $this->appname  );
 			update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
 			update_option( 'eDemoSSO_allowBind'			, $this->allowBind );
@@ -149,6 +151,15 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 			<form method="post">
 				<fieldset class='options'>
 					<table class="form-table">
+						<tr>
+							<th>
+								<label for="EdemoSSO_serviceURI"><?= __( 'SSO service URL:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
+							</th>
+							<td>
+								<input type='text' size='40' name='EdemoSSO_serviceURI' id='EdemoSSO_serviceURI' value='<?= get_option('eDemoSSO_serviceURI'); ?>' />
+								<p class="description"><?= __( 'The base URL of the SSO service', eDemo_SSOauth::TEXTDOMAIN ) ?></p>
+							</td>
+						</tr>
 						<tr>
 							<th>
 								<label for="EdemoSSO_appname"><?= __( 'Application name:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
