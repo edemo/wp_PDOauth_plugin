@@ -1,30 +1,30 @@
 # MSSO login plugin for Wordpress
 
 Ez egy wordpress plugin. 
-SegÌtsÈgÈvel az eDemo SSO autentik·ciÛs szolg·ltat·st igÈnybe vÈve lehet bejelentkezni a wordpress-be.
+Seg√≠ts√©g√©vel az eDemo SSO autentik√°ci√≥s szolg√°ltat√°st ig√©nybe v√©ve lehet bejelentkezni a wordpress-be.
 
-SSO szolg·ltat·s: https://sso.edemokraciagep.org/static/login.html
+SSO szolg√°ltat√°s: https://sso.edemokraciagep.org/static/login.html
 
-funkciÛk
-- bejelentkezÈs SSO szolg·ltat·s segÌtsÈgÈvel
-- regisztr·ciÛ SSO szolg·ltat·s segÌtsÈgÈvel (f¸ggetlen a gy·ri WP regisztr·l·si lehetısÈg be·llÌt·stÛl)
-- login widget - sso login, sso regisztr·ciÛ, logout, sso account bind, show user profil
-- login oldal SSO kiegÈszÌtÈs - sso login, sso regisztr·ciÛ
-- SSO adatok a felhaszn·lÛi profil oldalon - adatfrissÌtÈs funkciÛ
-- plugin be·llÌtÛ adminisztr·ciÛs panel a be·llÌt·sok men¸ben
-- felhaszn·lÛi fiÛk letilt·sa (ban user) funkciÛ
-- SSO tanusÌt·sok user meta
+funkci√≥k
+- bejelentkez√©s SSO szolg√°ltat√°s seg√≠ts√©g√©vel
+- regisztr√°ci√≥ SSO szolg√°ltat√°s seg√≠ts√©g√©vel (f√ºggetlen a gy√°ri WP regisztr√°l√°si lehet≈ës√©g be√°ll√≠t√°st√≥l)
+- login widget - sso login, sso regisztr√°ci√≥, logout, sso account bind, show user profil
+- login oldal SSO kieg√©sz√≠t√©s - sso login, sso regisztr√°ci√≥
+- SSO adatok a felhaszn√°l√≥i profil oldalon - adatfriss√≠t√©s funkci√≥
+- plugin be√°ll√≠t√≥ adminisztr√°ci√≥s panel a be√°ll√≠t√°sok men√ºben
+- felhaszn√°l√≥i fi√≥k letilt√°sa (ban user) funkci√≥
+- SSO tanus√≠t√°sok user meta
 - SSO user ID user mata
-- 0 szint˚ 'SSO user' szerepkˆr
-- assurance f¸ggı regisztr·ciÛ
+- 0 szint≈± 'SSO user' szerepk√∂r
+- assurance f√ºgg≈ë regisztr√°ci√≥
 
-opciÛk
-- SSO regisztr·ciÛ letilt·sa -> scope: all user
-- SSO bejelentkezÈs letilt·sa -> scope: all user
-- SSL tanusÌtv·ny ellenırzÈse
-- SSO account bind engedÈlyezÈse
-- admin bar alapÈrtelmezett kikapcsol·sa
-- alapÈrtelmezett felhaszn·lÛi szerepkˆr be·llÌt·sa
-- regisztr·ciÛhoz sz¸ksÈges assurancok be·llÌt·sa
+opci√≥k
+- SSO regisztr√°ci√≥ letilt√°sa -> scope: all user
+- SSO bejelentkez√©s letilt√°sa -> scope: all user
+- SSL tanus√≠tv√°ny ellen≈ërz√©se
+- SSO account bind enged√©lyez√©se
+- admin bar alap√©rtelmezett kikapcsol√°sa
+- alap√©rtelmezett felhaszn√°l√≥i szerepk√∂r be√°ll√≠t√°sa
+- regisztr√°ci√≥hoz sz√ºks√©ges assurancok be√°ll√≠t√°sa
 
 ---
