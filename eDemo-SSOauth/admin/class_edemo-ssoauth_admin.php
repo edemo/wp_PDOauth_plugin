@@ -252,7 +252,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 						</tr>
 						<tr>
 							<td colspan="2">
-							<p class="submit"><input class="button button-primary" type='submit' name='edemosso_update' value='<?= __( 'Update Options', eDemo_SSOauth::TEXTDOMAIN ) ?>' /></p>
+							<p class="submit"><input class="button button-primary" type='submit' id="EdemoSSO_update" name='edemosso_update' value='<?= __( 'Update Options', eDemo_SSOauth::TEXTDOMAIN ) ?>' /></p>
 							</td>
 						</tr>
 					</table>

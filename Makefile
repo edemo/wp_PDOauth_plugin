@@ -7,3 +7,6 @@ testenv:
 check:
 	phpunit --stderr tests
 
+end2endtest:
+	PYTHONPAT=end2endtest python3 -m unittest discover -v -f -s end2endtest -p "*.py"
+

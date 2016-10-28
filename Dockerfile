@@ -11,9 +11,11 @@ RUN echo 'mysql-server mysql-server/root_password password password' | debconf-s
 RUN echo 'mysql-server mysql-server/root_password_again password password' | debconf-set-selections
 
 RUN apt-get -y install wordpress vim less xvfb firefox chromium-chromedriver \
-    wget git mysql-server iputils-ping vnc4server net-tools strace fvwm
+    wget git mysql-server iputils-ping vnc4server net-tools strace fvwm python3-pip make
 
-RUN apt-get -y install make
+ADD requirements.txt /tmp/requirements.txt
+
+RUN pip3 install -r /tmp/requirements.txt
 
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-linux64.tar.gz -O /tmp/geckodriver.tar.gz;cd /usr/local/bin;tar xvzf /tmp/geckodriver.tar.gz
 
