@@ -70,6 +70,7 @@ class eDemo_SSOauth {
 	 */
 	protected $version;
 	protected $options = array(
+					'eDemoSSO_serviceURI',
 					'eDemoSSO_appkey',
 					'eDemoSSO_secret',
 					'eDemoSSO_appname',
@@ -82,7 +83,6 @@ class eDemo_SSOauth {
 					'eDemoSSO_needed_assurances',
 					'eDemoSSO_callback_uri'
 					);
-
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -285,7 +285,7 @@ class eDemo_SSOauth {
 	 */
 	private function add_options() {
 		foreach ( $this->options as $option){
-			add_option( $option, '', '', 'yes');
+			error_log($option." - ".(add_option( $option, '', '', 'yes')?"true":"false")." - ".get_option($option,"nincs"));
 		}
 	}
 
