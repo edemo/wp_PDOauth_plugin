@@ -4,7 +4,4 @@ python:
   - 2.7
 build:
   ci:
-    - tools/prepare
-    - tools/runapache
-    - make check
-    - make e2e
+    - tools/script

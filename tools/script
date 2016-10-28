@@ -1,0 +1,5 @@
+#!/bin/bash
+. tools/prepare
+tools/runapache
+make check
+make e2e

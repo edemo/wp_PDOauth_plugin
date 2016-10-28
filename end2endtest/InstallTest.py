@@ -31,11 +31,24 @@ class element_to_be_useable(object):
                 pass
         return False
 
-class PDUnitTest(TestCase):
+class UIActions(object):
     def waitUntilElementEnabled(self, fieldId):
         element = WebDriverWait(self.driver, 100).until(element_to_be_useable((By.ID,fieldId)))
         return element
 
+    def wait_on_element_text(self, by_type, element, text, timeout=20):
+        WebDriverWait(self.driver, timeout).until(
+            EC.text_to_be_present_in_element(
+                (by_type, element), text)
+        )
+
+    def fillInField(self, fieldId, value):
+        element = self.waitUntilElementEnabled(fieldId)
+        element.clear()
+        element.send_keys(value)
+
+
+class UIProcedures(UIActions):
     def login_as_admin(self):
         self.driver.get("http://blog.example.com:8080/wp-login.php")
         self.waitUntilElementEnabled("user_login").send_keys("admin")
@@ -45,20 +58,24 @@ class PDUnitTest(TestCase):
 
     def configureSSO(self):
         self.driver.get("http://blog.example.com:8080/wp-admin/options-general.php?page=edemosso")
-        self.waitUntilElementEnabled("EdemoSSO_appname").send_keys("testapp")
-        self.waitUntilElementEnabled("EdemoSSO_appkey").send_keys("testkey")
-        self.waitUntilElementEnabled("EdemoSSO_secret").send_keys("testsecret")
-        self.waitUntilElementEnabled("EdemoSSO_callback_uri").send_keys("/callback/uri")
+        self.fillInField("EdemoSSO_appname", "testapp")
+        self.fillInField("EdemoSSO_appkey", "testkey")
+        self.fillInField("EdemoSSO_secret", "testsecret")
+        self.fillInField("EdemoSSO_callback_uri", "/callback/uri")
         self.waitUntilElementEnabled("EdemoSSO_allowBind").click()
         self.waitUntilElementEnabled("EdemoSSO_allowLogin").click()
         self.waitUntilElementEnabled("EdemoSSO_update").click()
 
-    def test_install_page(self):
+class InstalltestTest(TestCase, UIProcedures):
+    def setUp(self):
         self.driver = webdriver.Firefox()
+
+    def tearDown(self):
+        self.driver.close()
+        
+    def test_install_page(self):
         self.login_as_admin()
         self.configureSSO()
-        #there should have been something on the UI which shows whether actions are all done 
-        time.sleep(2)
+        self.wait_on_element_text(By.ID, "wpbody-content", "Options updated", 30)
         self.assertIn("Options updated",self.driver.find_element_by_id("wpbody-content").text)
-        self.driver.close()
 
