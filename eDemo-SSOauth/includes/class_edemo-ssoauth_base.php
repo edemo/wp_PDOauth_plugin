@@ -59,6 +59,7 @@
 	 * @param      string    $version    The version of this plugin.
 	 */
 	function __construct( ) {
+		$this->serviceURI = get_option( 'eDemoSSO_serviceURI' );
 		$this->callbackURL = get_site_url( "", "", "https" )."/".get_option( 'eDemoSSO_callback_uri' );
 		$this->appkey = get_option( 'eDemoSSO_appkey' );
 		$this->secret = get_option( 'eDemoSSO_secret' );

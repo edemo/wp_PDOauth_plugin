@@ -434,7 +434,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	*/
 	private function get_user_role( $assurances ){
 		$user_role = get_option( 'eDemoSSO_default_role' );
-		return apply_filter( 'eDemo-SSOauth_get_user_role', $user_role, $assurances );
+		return apply_filters( 'eDemo-SSOauth_get_user_role', $user_role, $assurances );
 	}
 }
 ?>
