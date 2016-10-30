@@ -122,8 +122,11 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	 */		
 	function add_rewrite_rules() {
 		global $wp_rewrite;
-		$rules = array( self::CALLBACK_URI.'(.+?)$' => 'index.php$matches[1]&'.self::QUERY_VAR.'=true',
-						self::CALLBACK_URI.'$'      => 'index.php?'.self::QUERY_VAR.'=true&'  );
+		$default_callback_uri='sso_callback';
+		$callback_uri=get_option('eDemoSSO_callback_uri',$default_callback_uri);
+		if (!$callback_uri or $callback_uri=="") $callback_uri=$default_callback_uri;
+		$rules = array( $callback_uri.'(.+?)$' => 'index.php$matches[1]&'.$callback_uri.'=true',
+						$callback_uri.'$'      => 'index.php?'.$callback_uri.'=true&'  );
 		$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
 	}
 	/**
