@@ -1,0 +1,12 @@
+#!/bin/bash
+set -x
+rm -rf tmp shippable wordpress
+mkdir -p tmp shippable
+export DISPLAY=:1
+Xvnc -SecurityTypes=None :1&
+gzip -dc /usr/share/doc/wordpress/examples/setup-mysql.gz >tmp/setup-mysql
+chmod 777 tmp/setup-mysql
+echo 127.0.0.1 blog.example.com >>/etc/hosts
+service mysql start
+tmp/setup-mysql -n blog blog.example.com
+tools/wpinstall
