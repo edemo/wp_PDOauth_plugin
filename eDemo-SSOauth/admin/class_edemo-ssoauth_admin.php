@@ -107,12 +107,10 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		add_options_page('eDemo SSO Options', 'eDemo SSO', 'manage_options', 'edemosso', array( $this, 'displayAdminPage'));
 	}
 
-	// Display the admin page.
-	function displayAdminPage() {
-		
-		if (isset($_POST['edemosso_update'])) {
+	// Update if neccessary
+	private function update_SSO_options() {
 
-			// Update options 
+				// Update options 
 			$this->serviceURI 		= $_POST[ 'EdemoSSO_serviceURI' ];
 			$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
 			$this->appkey			= $_POST['EdemoSSO_appkey'];
@@ -129,6 +127,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 			
 			update_option( 'eDemoSSO_serviceURI'   		, $this->serviceURI );
 			update_option( 'eDemoSSO_secret'   			, $this->secret );
+			update_option( 'eDemoSSO_appkey'   			, $this->appkey );
 			update_option( 'eDemoSSO_appname'  			, $this->appname  );
 			update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
 			update_option( 'eDemoSSO_allowBind'			, $this->allowBind );
@@ -143,6 +142,14 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 			?>
 			<div class='updated fade'><p><?= __('Options updated.',eDemo_SSOauth::TEXTDOMAIN) ?></p></div>
 		<?php
+		
+	}
+	
+	// Display the admin page.
+	function displayAdminPage() {
+		
+		if (isset($_POST['edemosso_update'])) {
+			$this->update_SSO_options();
 		}		
 		?>
 		<div class="wrap">

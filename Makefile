@@ -15,3 +15,7 @@ PDOauth:
 
 runsso: PDOauth
 	cd PDOauth; make runserver
+
+cleanup:
+	rm -rf wordpress/
+	rm -rf tmp/

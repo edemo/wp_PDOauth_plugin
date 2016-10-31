@@ -6,9 +6,28 @@ $mock_data["script_queue"] = array();
 $mock_data["users"] = array();
 $mock_data["admin"] = false;
 
+//to be able calling private methodes
+function invokeMethod(&$object, $methodName, array $parameters = array())
+	{	
+		$reflection = new \ReflectionClass(get_class($object));
+		$method = $reflection->getMethod($methodName);
+		$method->setAccessible(true);
+	
+		return $method->invokeArgs($object, $parameters);
+	}
+
+function __($text,$textdomain) {
+	return $text;
+}
+
 function add_option($name, $value, $arg3, $arg4) {
 	global $mock_data;
 	$mock_data["options"][$name] = array("value" => $value);
+}
+
+function update_option($name, $value) {
+	global $mock_data;
+	$mock_data["options"][$name]["value"]=$value;
 }
 
 function get_option($name) {

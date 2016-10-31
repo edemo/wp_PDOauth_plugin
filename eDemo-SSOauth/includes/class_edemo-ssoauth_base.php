@@ -51,6 +51,7 @@
 	 * @var      string    $sslverify    Ssl verify option stored into options db
 	 */
 	private $sslverify;
+	private $serviceURI;
 	/**
 	 * Initialize the class and set its properties.
 	 *
