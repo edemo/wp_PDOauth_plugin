@@ -26,7 +26,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
-	private $plugin_name;
+	public $plugin_name;
 	/**
 	 * The version of this plugin.
 	 *
@@ -34,7 +34,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
-	private $version;
+	public $version;
 	/**
 	 * Initialize the class and set its properties.
 	 *

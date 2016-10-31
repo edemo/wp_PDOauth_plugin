@@ -2,13 +2,14 @@
 
 require_once 'tests/fake_lib.php';
 
-include 'eDemo-SSOauth/includes/class_edemo-ssoauth_base.php';
-include 'eDemo-SSOauth/admin/class_edemo-ssoauth_admin.php';
+require_once 'eDemo-SSOauth/includes/class_edemo-ssoauth_base.php';
+require_once 'eDemo-SSOauth/admin/class_edemo-ssoauth_admin.php';
 
 class eDemo_SSOauth_AdminTest extends PHPUnit_Framework_TestCase
 {
-	public function test__constructor()
+	public function test_the_constructor_sets_the_plugin_name_and_the_version_got_as_parameter()
 	{
+		init_mocked_option_container(); 
 		$e = new eDemo_SSOauth_Admin('plugin_name','version');
 		$this->assertEquals(
 			$e->plugin_name,
@@ -16,24 +17,12 @@ class eDemo_SSOauth_AdminTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			$e->version,
 			'version');
-
 	}
 	
 	public function test_update_SSO_options()
     {
 		global $mock_data;
-		$mock_data["options"]["eDemoSSO_serviceURI"]["value"]='';
-		$mock_data["options"]["eDemoSSO_sslverify"]["value"]=false;
-		$mock_data["options"]["eDemoSSO_appkey"]["value"]='';
-		$mock_data["options"]["eDemoSSO_secret"]["value"]='';
-		$mock_data["options"]["eDemoSSO_appname"]["value"]='';
-		$mock_data["options"]["eDemoSSO_allowBind"]["value"]=false;
-		$mock_data["options"]["eDemoSSO_allowRegister"]["value"]=false;
-		$mock_data["options"]["eDemoSSO_allowLogin"]["value"]=false;
-		$mock_data["options"]["eDemoSSO_default_role"]["value"]='';
-		$mock_data["options"]["eDemoSSO_hide_adminbar"]["value"]=false;
-		$mock_data["options"]["eDemoSSO_needed_assurances"]["value"]='';
-		$mock_data["options"]["eDemoSSO_callback_uri"]["value"]='';
+		init_mocked_option_container();
 		$_POST=['EdemoSSO_serviceURI'        => 'serviceURI',
 				'EdemoSSO_sslverify'         => true,
 				'EdemoSSO_appkey'            => 'appkey',

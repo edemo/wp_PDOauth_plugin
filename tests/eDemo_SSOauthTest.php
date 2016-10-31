@@ -1,8 +1,8 @@
 <?php
 
-include 'tests/fake_lib.php';
+require_once 'tests/fake_lib.php';
 
-include 'eDemo-SSOauth/includes/class_edemo-ssoauth.php';
+require_once 'eDemo-SSOauth/includes/class_edemo-ssoauth.php';
 
 class eDemo_SSOauthTest extends PHPUnit_Framework_TestCase
 {
