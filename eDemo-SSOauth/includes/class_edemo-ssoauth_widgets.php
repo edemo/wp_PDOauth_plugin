@@ -4,7 +4,7 @@
 * 
 * - login widget
 *
-* @since 0.1
+* @since 0.0.1
 *
 */
 
@@ -21,7 +21,6 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 			'allowLogin'	=> get_option('eDemoSSO_allowLogin')
 								);
 		parent::__construct( false, 'eDemo_SSOauth_login_widget' );
-		error_log('widget is constructed');
 	}
 
 	function widget( $args, $instance ) { 
@@ -82,7 +81,7 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		
 		//section for all 
 ?>
-			<li><a href="<?= eDemo_SSOauth::SSO_SITE_URL ?>"><?= __('SSO services', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
+			<li><a href="https://<?= $common->serviceURI.eDemo_SSOauth::SSO_SITE_URL ?>"><?= __('SSO services', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 		</ul>
 		<?= $args['after_widget'] ?>
 <?php

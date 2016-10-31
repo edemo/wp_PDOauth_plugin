@@ -16,8 +16,28 @@ function invokeMethod(&$object, $methodName, array $parameters = array())
 		return $method->invokeArgs($object, $parameters);
 	}
 
+class WP_Widget //mocks the Wordpress Widget Class
+{
+	function __construct($some,$widget_name) {}	
+}
+	
 function __($text,$textdomain) {
 	return $text;
+}
+function init_mocked_option_container(){
+	global $mock_data;
+	$mock_data["options"]["eDemoSSO_serviceURI"]["value"]='';
+	$mock_data["options"]["eDemoSSO_sslverify"]["value"]=false;
+	$mock_data["options"]["eDemoSSO_appkey"]["value"]='';
+	$mock_data["options"]["eDemoSSO_secret"]["value"]='';
+	$mock_data["options"]["eDemoSSO_appname"]["value"]='';
+	$mock_data["options"]["eDemoSSO_allowBind"]["value"]=false;
+	$mock_data["options"]["eDemoSSO_allowRegister"]["value"]=false;
+	$mock_data["options"]["eDemoSSO_allowLogin"]["value"]=false;
+	$mock_data["options"]["eDemoSSO_default_role"]["value"]='';
+	$mock_data["options"]["eDemoSSO_hide_adminbar"]["value"]=false;
+	$mock_data["options"]["eDemoSSO_needed_assurances"]["value"]='';
+	$mock_data["options"]["eDemoSSO_callback_uri"]["value"]='';
 }
 
 function add_option($name, $value, $arg3, $arg4) {
@@ -86,7 +106,4 @@ function register_activation_hook($name, $args) {
 function register_deactivation_hook($name, $args) {
 }
 
-class WP_widget
-{
-}
 
