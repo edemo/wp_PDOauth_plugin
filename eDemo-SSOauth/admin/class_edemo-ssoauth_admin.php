@@ -101,8 +101,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	#
 
 	// Add page to options menu.
-	function addAdminPage() 
-	{
+	function addAdminPage() {
 	  // Add a new submenu under Options:
 		add_options_page('eDemo SSO Options', 'eDemo SSO', 'manage_options', 'edemosso', array( $this, 'displayAdminPage'));
 	}
@@ -110,39 +109,32 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	// Update if neccessary
 	private function update_SSO_options() {
 
-				// Update options 
-			$this->serviceURI 		= $_POST[ 'EdemoSSO_serviceURI' ];
-			$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
-			$this->appkey			= $_POST['EdemoSSO_appkey'];
-			$this->secret			= $_POST['EdemoSSO_secret'];
-			$this->appname			= $_POST['EdemoSSO_appname'];
-			$this->allowBind		= isset($_POST['EdemoSSO_allowBind']);
-			$this->allowRegister	= isset($_POST['EdemoSSO_allowRegister']);
-			$this->allowLogin		= isset($_POST['EdemoSSO_allowLogin']);
-			$this->default_role		= $_POST['EdemoSSO_default_role'];
-			$this->hide_adminbar	= isset($_POST['EdemoSSO_hide_adminbar']);
-			$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
-			$this->callback_uri		= $_POST['EdemoSSO_callback_uri'];
-
-			
-			update_option( 'eDemoSSO_serviceURI'   		, $this->serviceURI );
-			update_option( 'eDemoSSO_secret'   			, $this->secret );
-			update_option( 'eDemoSSO_appkey'   			, $this->appkey );
-			update_option( 'eDemoSSO_appname'  			, $this->appname  );
-			update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
-			update_option( 'eDemoSSO_allowBind'			, $this->allowBind );
-			update_option( 'eDemoSSO_allowRegister'		, $this->allowRegister );
-			update_option( 'eDemoSSO_allowLogin'		, $this->allowLogin );
-			update_option( 'eDemoSSO_callback_uri'		, $this->callback_uri );
-			update_option( 'eDemoSSO_hide_adminbar'		, $this->hide_adminbar );
-			update_option( 'eDemoSSO_default_role'  	, $this->default_role );
-			update_option( 'eDemoSSO_needed_assurances' , str_replace(' ', '', $this->needed_assurances) );
-
-			// echo message updated		
-			?>
-			<div class='updated fade'><p><?= __('Options updated.',eDemo_SSOauth::TEXTDOMAIN) ?></p></div>
-		<?php
+			// Update options 
+		$this->serviceURI 		= $_POST[ 'EdemoSSO_serviceURI' ];
+		$this->sslverify		= isset($_POST['EdemoSSO_sslverify']);
+		$this->appkey			= $_POST['EdemoSSO_appkey'];
+		$this->secret			= $_POST['EdemoSSO_secret'];
+		$this->appname			= $_POST['EdemoSSO_appname'];
+		$this->allowBind		= isset($_POST['EdemoSSO_allowBind']);
+		$this->allowRegister	= isset($_POST['EdemoSSO_allowRegister']);
+		$this->allowLogin		= isset($_POST['EdemoSSO_allowLogin']);
+		$this->default_role		= $_POST['EdemoSSO_default_role'];
+		$this->hide_adminbar	= isset($_POST['EdemoSSO_hide_adminbar']);
+		$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
+		$this->callback_uri		= $_POST['EdemoSSO_callback_uri'];
 		
+		update_option( 'eDemoSSO_serviceURI'   		, $this->serviceURI );
+		update_option( 'eDemoSSO_secret'   			, $this->secret );
+		update_option( 'eDemoSSO_appkey'   			, $this->appkey );
+		update_option( 'eDemoSSO_appname'  			, $this->appname  );
+		update_option( 'eDemoSSO_sslverify'			, $this->sslverify );
+		update_option( 'eDemoSSO_allowBind'			, $this->allowBind );
+		update_option( 'eDemoSSO_allowRegister'		, $this->allowRegister );
+		update_option( 'eDemoSSO_allowLogin'		, $this->allowLogin );
+		update_option( 'eDemoSSO_callback_uri'		, $this->callback_uri );
+		update_option( 'eDemoSSO_hide_adminbar'		, $this->hide_adminbar );
+		update_option( 'eDemoSSO_default_role'  	, $this->default_role );
+		update_option( 'eDemoSSO_needed_assurances' , str_replace(' ', '', $this->needed_assurances) );
 	}
 	
 	// Display the admin page.
@@ -150,6 +142,12 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		
 		if (isset($_POST['edemosso_update'])) {
 			$this->update_SSO_options();
+			// echo message updated		
+		?>
+		<div class='updated fade'>
+			<p><?= __('Options updated.',eDemo_SSOauth::TEXTDOMAIN) ?></p>
+		</div>
+		<?php
 		}		
 		?>
 		<div class="wrap">
