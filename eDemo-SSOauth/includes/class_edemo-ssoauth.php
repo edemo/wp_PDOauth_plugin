@@ -39,8 +39,8 @@ class eDemo_SSOauth {
 	 * constants for SSO comminication interface
 	 */
 //	const SSO_DOMAIN	= 'sso.edemokraciagep.org'; 					//not used
-	const SSO_AUTH_URI	= 'sso.edemokraciagep.org/ada/v1/oauth2/auth';	//base
-	const SSO_TOKEN_URI	= '/ada/v1/oauth2/token'; //com
+	const SSO_AUTH_URI	= '/ada/v1/oauth2/auth';	//base
+	const SSO_TOKEN_URI	= '/ada/v1/oauth2/token'; 	//com
 	const SSO_USER_URI	= '/ada/v1/users/me';		//com
 //	const SSO_USERS_URI	= 'sso.edemokraciagep.org/ada/v1/users';		//not used
 	const SSO_SITE_URL	= 'https://sso.edemokraciagep.org/login.html';	//widget
