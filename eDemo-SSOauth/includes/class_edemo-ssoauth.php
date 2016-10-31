@@ -285,7 +285,7 @@ class eDemo_SSOauth {
 	 */
 	private function add_options() {
 		foreach ( $this->options as $option){
-			add_option( $option, '', '', 'yes')
+			add_option( $option, '', '', 'yes');
 		}
 	}
 
