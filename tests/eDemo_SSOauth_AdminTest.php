@@ -7,6 +7,18 @@ include 'eDemo-SSOauth/admin/class_edemo-ssoauth_admin.php';
 
 class eDemo_SSOauth_AdminTest extends PHPUnit_Framework_TestCase
 {
+	public function test__constructor()
+	{
+		$e = new eDemo_SSOauth_Admin('plugin_name','version');
+		$this->assertEquals(
+			$e->plugin_name,
+			'plugin_name');
+		$this->assertEquals(
+			$e->version,
+			'version');
+
+	}
+	
 	public function test_update_SSO_options()
     {
 		global $mock_data;
