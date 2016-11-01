@@ -67,6 +67,16 @@ class eDemo_SSOauth_com {
 	 * @var      string    $sslverify    Ssl verify option stored into options db
 	 */
 	private $sslverify;
+	
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    0.0.2
+	 * @access   private
+	 * @var      string    $serviceURI    the domain name of the sso service option stored into options db
+	 */	
+	private $serviceURI;
+	
 	/**
 	 * Initialize the class and set its properties.
 	 *

@@ -81,10 +81,11 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		
 		//section for all 
 ?>
-			<li><a href="https://<?= $common->serviceURI.eDemo_SSOauth::SSO_SITE_URL ?>"><?= __('SSO services', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
+			<li><a href="https://<?= (get_option('eDemoSSO_serviceURI').eDemo_SSOauth::SSO_SITE_URL) ?>"><?= __('SSO services', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 		</ul>
 		<?= $args['after_widget'] ?>
 <?php
+	error_log($common->serviceURI.eDemo_SSOauth::SSO_SITE_URL);
 	}
 
 	function update( $new_instance, $old_instance ) {

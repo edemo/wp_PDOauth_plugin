@@ -98,6 +98,7 @@ function register_widget($name) {
 }
 
 function get_site_url($arg1,$arg2, $arg3) {
+	return 'site_url';
 }
 
 function add_action($name, $arg1, $arg3) {
