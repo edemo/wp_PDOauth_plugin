@@ -85,7 +85,6 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		</ul>
 		<?= $args['after_widget'] ?>
 <?php
-	error_log($common->serviceURI.eDemo_SSOauth::SSO_SITE_URL);
 	}
 
 	function update( $new_instance, $old_instance ) {
