@@ -51,6 +51,7 @@
 	 * @var      string    $sslverify    Ssl verify option stored into options db
 	 */
 	private $sslverify;
+	private $serviceURI;
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -130,7 +131,7 @@ error_log('widget is registered');
 		return get_user_option( 'eDemoSSO_account_disabled', $user_id, false );
 	}	
 	public function get_SSO_action_link($action){
-		return 'https://'.eDemo_SSOauth::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.$this->SSO_redirect_uri(array('SSO_action'=>$action,'_wpnonce'=>wp_create_nonce($action)));
+		return 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.$this->SSO_redirect_uri(array('SSO_action'=>$action,'_wpnonce'=>wp_create_nonce($action)));
 	}
 	public function get_user_SSO_id($user_id){
 		return get_user_meta($user_id,eDemo_SSOauth::USERMETA_ID, true);

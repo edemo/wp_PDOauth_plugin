@@ -4,7 +4,7 @@ require_once 'tests/fake_lib.php';
 
 require_once 'eDemo-SSOauth/includes/class_edemo-ssoauth.php';
 
-class eDemo_SSOauthTest extends PHPUnit_Framework_TestCase
+class eDemo_SSOauth_communication__Test extends PHPUnit_Framework_TestCase
 {
 
     public function test_get_plugin_name_gets_plugin_name()
