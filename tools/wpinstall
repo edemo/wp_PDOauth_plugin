@@ -6,5 +6,5 @@ mysql --password=password -e "create database wordpress"
 ./tmp/wp_cli core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://blog.example.com:8080 --title=WordPress --path=wordpress
 cp -r eDemo-SSOauth wordpress/wp-content/plugins/
 ./tmp/wp_cli --allow-root plugin activate eDemo-SSOauth --path=wordpress
-
+chown -R www-data.www-data wordpress
 

@@ -21,6 +21,8 @@ LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
 	MaxConnectionsPerChild   0
 
 
+User www-data
+Group www-data
 ServerRoot PWD
 LogLevel debug
 ErrorLog ./shippable/Error.log
@@ -51,4 +53,15 @@ DocumentRoot PWD/wordpress
 ServerName blog.example.com
 DirectoryIndex index.php index.html
 
-
+SSLCertificateFile etc/cert.pem
+SSLCertificateKeyFile etc/key.pem
+SSLEngine on
+SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+SSLOptions +StdEnvVars
+SSLOptions +ExportCertData
+SSLSessionCacheTimeout  300
+<Directory "PWD/wordpress">
+  AllowOverride all
+  Require all granted
+</Directory>
+ 

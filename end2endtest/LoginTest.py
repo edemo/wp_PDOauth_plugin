@@ -9,4 +9,3 @@ class LoginTest(TestCase, UIProcedures):
 
     def tearDown(self):
         self.driver.close()
-
