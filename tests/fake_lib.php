@@ -6,6 +6,16 @@ $mock_data["script_queue"] = array();
 $mock_data["users"] = array();
 $mock_data["admin"] = false;
 
+//to be able read private properties
+function invokeProperty(&$object, $propName)
+	{	
+		$reflection = new \ReflectionClass(get_class($object));
+		$prop = $reflection->getProperty($propName);
+		$prop->setAccessible(true);
+	
+		return $prop->getValue($object);
+	}
+
 //to be able calling private methodes
 function invokeMethod(&$object, $methodName, array $parameters = array())
 	{	
@@ -88,6 +98,7 @@ function register_widget($name) {
 }
 
 function get_site_url($arg1,$arg2, $arg3) {
+	return 'site_url';
 }
 
 function add_action($name, $arg1, $arg3) {

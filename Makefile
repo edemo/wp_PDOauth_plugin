@@ -7,7 +7,7 @@ testenv:
 check:
 	phpunit --stderr tests
 
-e2e:
+e2e:	recording
 	PYTHONPAT=end2endtest python3 -m unittest discover -v -f -s end2endtest -p "*.py"
 
 PDOauth:
@@ -16,6 +16,14 @@ PDOauth:
 runsso: PDOauth
 	cd PDOauth; make runserver
 
-cleanup:
-	rm -rf wordpress/
+cleanup: stoprecording
+	rm -rf /tmp/wordpress/
+	mv /tmp/wplog/* shippable
 	rm -rf tmp/
+
+recording:
+	start-stop-daemon --start --background --oknodo --name flvrec --make-pidfile --pidfile /tmp/flvrec.pid --startas /usr/bin/python -- /usr/local/bin/flvrec.py -o /tmp/wplog/record.flv :1
+
+stoprecording:
+	-start-stop-daemon --stop --pidfile /tmp/flvrec.pid
+

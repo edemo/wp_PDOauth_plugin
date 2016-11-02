@@ -2,35 +2,43 @@
 
 require_once 'tests/fake_lib.php';
 
-require_once 'eDemo-SSOauth/includes/class_edemo-ssoauth.php';
+require_once 'eDemo-SSOauth/includes/class_edemo-ssoauth_communication.php';
 
 class eDemo_SSOauth_communication__Test extends PHPUnit_Framework_TestCase
 {
 
-    public function test_get_plugin_name_gets_plugin_name()
+    public function test_the_constructor_initialise_the_class_variables()
     {
-        $e = new eDemo_SSOauth();
+        init_mocked_option_container();
+		update_option('eDemoSSO_serviceURI','serviceURI');
+		update_option('eDemoSSO_callback_uri','callback_uri');
+		update_option('eDemoSSO_appkey','appkey');
+		update_option('eDemoSSO_secret','secret');
+		update_option('eDemoSSO_sslverify','sslverify');
+		
+		$e = new eDemo_SSOauth_com('plugin_name','version');
         $this->assertEquals(
-        	$e->get_plugin_name(),
-        	"eDemo-SSOauth");
-    }
-
-    public function test_get_loader_gets_the_loader()
-    {
-        $e = new eDemo_SSOauth();
-        $loader = $e->get_loader();
+        	invokeProperty($e, 'serviceURI'),
+        	"serviceURI");
         $this->assertEquals(
-        	get_class($loader),
-        	"eDemo_SSOauth_Loader");
-    }
-    
-    public function test_version()
-    {
-        $e = new eDemo_SSOauth();
-        $version = $e->get_version();
+        	invokeProperty($e, 'plugin_name'),
+        	"plugin_name");
         $this->assertEquals(
-        	$version,
-        	"0.0.1");
+        	invokeProperty($e, 'version'),
+        	"version");
+        $this->assertEquals(
+        	invokeProperty($e, 'callbackURL'),
+        	"site_url/callback_uri");
+        $this->assertEquals(
+        	invokeProperty($e, 'appkey'),
+        	"appkey");
+        $this->assertEquals(
+        	invokeProperty($e, 'secret'),
+        	"secret");
+        $this->assertEquals(
+        	invokeProperty($e, 'sslverify'),
+        	"sslverify");
+			
     }
 
 }
