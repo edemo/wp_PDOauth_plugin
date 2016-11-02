@@ -1,5 +1,7 @@
 from UIActions import UIActions
 from selenium.webdriver.common.by import By
+import pdb
+import time
 
 class UIProcedures(UIActions):
     def login_as_admin(self):
@@ -22,7 +24,8 @@ class UIProcedures(UIActions):
             if option.text == '1':
                 option.click()
                 break
-        self.waitUntilElementEnabled("savewidget").click()
+        time.sleep(1)#FIXME:why is it needed?
+        self.click("savewidget")
         self.wait_on_element_text(By.ID, "message", "Changes saved.", 50)
         
         
@@ -35,6 +38,7 @@ class UIProcedures(UIActions):
         self.setCheckBox("EdemoSSO_allowBind")
         self.setCheckBox("EdemoSSO_allowLogin")
         self.setCheckBox("EdemoSSO_allowRegister")
+        time.sleep(2)#WTF?
         self.waitUntilElementEnabled("EdemoSSO_update").click()
         self.wait_on_element_text(By.ID, "wpbody-content", "Options updated", 30)
 

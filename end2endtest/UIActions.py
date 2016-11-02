@@ -45,11 +45,21 @@ class UIActions(object):
     def setCheckBox(self, elemId):
         element = self.waitUntilElementEnabled(elemId)
         if not element.is_selected():
-            element.click()
+            self.click(elemId)
         tried=0
         while not element.is_selected() and tried<5:
             time.sleep(1)
             tried += 1
+
+    def click(self, fieldId):
+        element = self.waitUntilElementEnabled(fieldId)
+        self.driver.execute_script("""
+            window.scrollTo(
+                0,
+                document.getElementById('{0}').getBoundingClientRect().top-
+                 document.body.getBoundingClientRect().top-
+                 100)""".format(fieldId))
+        return element.click()
 
     def assertFieldValue(self, fieldId, value):
         element = self.driver.find_element_by_id(fieldId)
