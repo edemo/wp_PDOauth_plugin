@@ -1,10 +1,14 @@
-wget -O tmp/wp_cli https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod a+x tmp/wp_cli 
-./tmp/wp_cli core download --allow-root --path=wordpress
+#!/bin/bash
+oldpath=$(pwd)
+cd /tmp
+rm -rf wordpress wplog
+wget -O wp_cli https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod a+x wp_cli 
+./wp_cli core download --allow-root --path=wordpress
 mysql --password=password -e "create database wordpress"
-./tmp/wp_cli core config --allow-root --dbname=wordpress --dbuser=root --dbhost=localhost --path=wordpress --dbpass=password
-./tmp/wp_cli core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://blog.example.com:8080 --title=WordPress --path=wordpress
-cp -r eDemo-SSOauth wordpress/wp-content/plugins/
-./tmp/wp_cli --allow-root plugin activate eDemo-SSOauth --path=wordpress
-chown -R www-data.www-data wordpress
-
+./wp_cli core config --allow-root --dbname=wordpress --dbuser=root --dbhost=localhost --path=wordpress --dbpass=password
+./wp_cli core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://blog.example.com:8080 --title=WordPress --path=wordpress
+cp -r $oldpath/eDemo-SSOauth wordpress/wp-content/plugins/
+./wp_cli --allow-root plugin activate eDemo-SSOauth --path=wordpress
+mkdir -p /tmp/wplog
+chown -R www-data.www-data wordpress wplog
