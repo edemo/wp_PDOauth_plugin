@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-rm -rf tmp shippable wordpress
+rm -rf tmp /tmp/wordpress
 mkdir -p tmp shippable
 export DISPLAY=:1
 Xvnc -SecurityTypes=None :1&
