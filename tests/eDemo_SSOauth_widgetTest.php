@@ -31,7 +31,6 @@ class eDemo_SSOauth_login_widget__Test extends PHPUnit_Framework_TestCase
 	init_mocked_option_container(); 
 	update_option('eDemoSSO_serviceURI','sso.edemokraciagep.org.lehetne');
 	$opt = get_option('eDemoSSO_serviceURI');
-	var_dump($opt);
 	$this->assertEquals('sso.edemokraciagep.org.lehetne',$opt);
    }
 

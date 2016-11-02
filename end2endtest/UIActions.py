@@ -2,6 +2,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 class element_to_be_useable(object):
     def __init__(self, locator):
@@ -40,3 +41,21 @@ class UIActions(object):
         element = self.waitUntilElementEnabled(fieldId)
         element.clear()
         element.send_keys(value)
+
+    def setCheckBox(self, elemId):
+        element = self.waitUntilElementEnabled(elemId)
+        if not element.is_selected():
+            element.click()
+        tried=0
+        while not element.is_selected() and tried<5:
+            time.sleep(1)
+            tried += 1
+
+    def assertFieldValue(self, fieldId, value):
+        element = self.driver.find_element_by_id(fieldId)
+        self.assertEqual(value,element.get_property('value'))
+
+    def assertSelected(self, fieldId):
+        element = self.driver.find_element_by_id(fieldId)
+        self.assertEqual(True,element.is_selected())
+
