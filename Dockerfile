@@ -18,7 +18,7 @@ RUN pip install vnc2flv
 
 RUN composer global require joomlatools/console
 
-RUN /root/.composer/vendor/bin/joomla site:create -L root:password testsite
+RUN service mysql start ; /root/.composer/vendor/bin/joomla site:create -L root:password testsite
 
 RUN chown -R www-data.www-data /var/www/testsite
 
