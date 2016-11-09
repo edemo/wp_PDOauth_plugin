@@ -5,6 +5,7 @@ $mock_data["options"] = array();
 $mock_data["script_queue"] = array();
 $mock_data["users"] = array();
 $mock_data["admin"] = false;
+$mock_data["is_user_logged_in"] = false;
 
 //to be able read private properties
 function invokeProperty(&$object, $propName)
@@ -115,6 +116,31 @@ function register_activation_hook($name, $args) {
 }
 
 function register_deactivation_hook($name, $args) {
+}
+
+function shortcode_atts($pairs, $atts, $shortcode='') {
+	$atts = (array)$atts;
+	$out = array();
+	foreach ($pairs as $name => $default) {
+		if ( array_key_exists($name, $atts) )
+			$out[$name] = $atts[$name];
+	    else
+	        $out[$name] = $default;
+	}
+    return $out;
+}
+
+function esc_attr( $text ) {
+	return $text;
+}
+
+function is_user_logged_in(){
+	global $mock_data;
+	return $mock_data["is_user_logged_in"];
+}
+
+function wp_create_nonce($action) {
+	return $action;
 }
 
 
