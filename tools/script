@@ -1,5 +1,8 @@
 #!/bin/bash
+make cleanup
+killall tail
 . tools/prepare
 tools/runapache
 make check
 make e2e
+

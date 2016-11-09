@@ -67,6 +67,16 @@ class eDemo_SSOauth_com {
 	 * @var      string    $sslverify    Ssl verify option stored into options db
 	 */
 	private $sslverify;
+	
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    0.0.2
+	 * @access   private
+	 * @var      string    $serviceURI    the domain name of the sso service option stored into options db
+	 */	
+	private $serviceURI;
+	
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -97,7 +107,7 @@ class eDemo_SSOauth_com {
 	*					boolean false if an error occurs
 	*/  
 	function request_for_user_data( $access_token ) {
-		$response = wp_remote_get( 'https://'.eDemo_SSOauth::SSO_USER_URI, array(
+		$response = wp_remote_get( 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_USER_URI, array(
                     'timeout' => 30,
                 'redirection' => 10,
                 'httpversion' => '1.0',
@@ -135,7 +145,7 @@ class eDemo_SSOauth_com {
 			                      'redirect_uri' => $this->callbackURL ),
 	              'cookies' => array(),
 	            'sslverify' => $this->sslverify );
-		$response = wp_remote_post( 'https://'.eDemo_SSOauth::SSO_TOKEN_URI, $arr );
+		$response = wp_remote_post( 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_TOKEN_URI, $arr );
 error_log('token request: '.json_encode($arr));
 		return $this->analyse_response( $response );
 	}
@@ -166,7 +176,7 @@ error_log('token request: '.json_encode($arr));
 					'cookies' => array(),
 					'sslverify' => $this->sslverify );
 error_log('refresh: '.json_encode($arr));					
-		return $this->analyse_response( wp_remote_post( 'https://'.eDemo_SSOauth::SSO_TOKEN_URI, $arr ) );
+		return $this->analyse_response( wp_remote_post( 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_TOKEN_URI, $arr ) );
 	}
 	/**
 	* Analysing the response comes from the wp_remote 

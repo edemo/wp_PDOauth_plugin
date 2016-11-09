@@ -38,3 +38,7 @@ dwsync.xml
 intermediate
 .idea
 cache
+tmp
+end2endtest/__pycache__
+shippable
+wordpress

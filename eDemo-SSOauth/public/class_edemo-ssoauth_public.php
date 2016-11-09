@@ -45,7 +45,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
-	private $plugin_name;
+	public $plugin_name;
 	/**
 	 * The version of this plugin.
 	 *
@@ -53,7 +53,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
-	private $version;
+	public $version;
 	/**
 	 * The communications object
 	 *
@@ -74,6 +74,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		$this->version = $version;
 		parent::__construct( );
 		$this->com = new eDemo_SSOauth_com( $plugin_name, $version );
+		add_shortcode( 'sso_login_button', array( $this, 'shortcode_login_button' ) );
 	}
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
@@ -115,6 +116,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	</div></div>
 	<?php 
 	}
+	
 	/**
 	 * Adding rewrite rules to be able catching the callback calls
 	 *
@@ -129,6 +131,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 						$callback_uri.'$'      => 'index.php?'.$callback_uri.'=true&'  );
 		$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
 	}
+	
 	/**
 	 * Used for setting the account accessability
 	 *
@@ -142,6 +145,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		}
 		return $user;
 	}
+	
 	/**
 	 * requesting for assurances if the user logs in with any other credential then SSO	
 	 *
@@ -156,6 +160,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 
 		}*/
 	}
+	
 	/**
 	 * parsing callback calls
 	 *
@@ -174,6 +179,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		}
 		return $result;
 	}
+	
 	/**
 	 * do SSO request for user data authenticated with code 
 	 *
@@ -191,6 +197,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		}
 		return false;
 	}
+	
 	/**
 	 * do SSO request for user data authenticated with refresh token 
 	 *
@@ -438,6 +445,25 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	private function get_user_role( $assurances ){
 		$user_role = get_option( 'eDemoSSO_default_role' );
 		return apply_filters( 'eDemo-SSOauth_get_user_role', $user_role, $assurances );
+	}
+	
+	/*
+	* Creates an <a> tag linked to sso login page
+	*
+	* @since 0.0.2
+	* @access   public
+	* @param	array  	$atts			array of assurances coming from the SSO service
+	*			string	$content		the content of the tag	
+	*
+	* @return	string	$user_role		the user role
+	*/
+	function shortcode_login_button($atts, $content = null) {
+		$vars=shortcode_atts( array (
+				"logged_in_class" => "",
+				"logged_out_class" => "",
+				), $atts);
+		$class=esc_attr(is_user_logged_in()?$vars['logged_in_class']:$vars['logged_out_class']);
+		return '<a class="'.$class.'" href="'.$this->get_SSO_action_link("login").'">'.$content.'</a>';
 	}
 }
 ?>
