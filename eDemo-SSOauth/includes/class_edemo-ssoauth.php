@@ -66,7 +66,7 @@ class eDemo_SSOauth {
 	 * @var      string    $version    The current version of the plugin.
 	 */
 	protected $version;
-	protected $options = array(
+	private $options = array(
 					'eDemoSSO_serviceURI',
 					'eDemoSSO_appkey',
 					'eDemoSSO_secret',
