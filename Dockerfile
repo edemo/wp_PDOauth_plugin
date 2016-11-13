@@ -12,9 +12,15 @@ RUN echo 'mysql-server mysql-server/root_password_again password password' | deb
 
 RUN apt-get -y install wordpress vim less xvfb firefox chromium-chromedriver \
     wget git mysql-server iputils-ping vnc4server net-tools strace fvwm python3-pip make\
-    python-pip
+    python-pip composer sudo zip php-xml
 
 RUN pip install vnc2flv
+
+RUN composer global require joomlatools/console
+
+RUN service mysql start ; /root/.composer/vendor/bin/joomla site:create -L root:password testsite
+
+RUN chown -R www-data.www-data /var/www/testsite
 
 ADD requirements.txt /tmp/requirements.txt
 
