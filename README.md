@@ -17,6 +17,9 @@ funkciók
 - SSO user ID user mata
 - 0 szintű 'SSO user' szerepkör
 - assurance függő regisztráció
+- shortcode login gomb létrehozásához bejelentkezett usertől függő class atributumokkal
+
+[sso_login_button logged_in_class='hide is you want' logged_out_class='my butyfull button']BEJELENTKEZÉS[/sso_login_button]
 
 opciók
 - SSO regisztráció letiltása -> scope: all user
