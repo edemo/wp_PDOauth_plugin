@@ -1,0 +1,354 @@
+# Copyright (C) 2016 eDemo SSO authentication
+# This file is distributed under the same license as the eDemo SSO authentication package.
+msgid ""
+msgstr ""
+"Project-Id-Version: eDemo SSO authentication 0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/eDemo-SSOauth\n"
+"POT-Creation-Date: 2016-11-13 10:43:15+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: admin/class_edemo-ssoauth_admin.php:163
+msgid "Options updated."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:170
+msgid "eDemo SSO Authentication Options"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:176
+msgid "SSO service URL:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:180
+msgid "The base URL of the SSO service"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:185
+msgid "Application name:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:189
+msgid "Used for registering the application"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:194
+msgid "Application key:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:198
+msgid "Application key."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:203
+msgid "Application secret:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:207
+msgid "Application secret."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:212
+msgid "Allow verify ssl certificates:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:216
+msgid ""
+"If this set, the ssl certificates will be verified during the communication "
+"with sso server. Uncheck is recommended if your site has no cert, or the "
+"issuer isn't validated."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:221
+msgid "eDemo_SSO callback URL:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:225
+msgid "Callback uri for communication with the SSO_server"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:230
+msgid "SSO account binding:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:234
+msgid ""
+"If this set, a SSO account can be binded with the given Wordpress account. "
+"User gets a 'bind' button on his datasheet and in the SSO login widget."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:239
+msgid "Allow registering:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:243
+msgid "This setting allows the user registrating with SSO service."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:248
+msgid "Allow sign in:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:252
+msgid ""
+"This setting allows the users logging in. In emergency case unset this "
+"option to forbid the users logging in"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:257
+msgid "Hide adminbar:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:261
+msgid ""
+"If this set, the hide admin bar option will be set on the users profile "
+"during registration process. That means, the admin bar willn't be shown as "
+"default if the user logged in. Anyway hide and show admin bar can be set on "
+"the user's profile page"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:266
+msgid "Default WP role for SSO usrs:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:272
+msgid "The default WP role, which will be added during the SSO registration"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:277
+msgid "Needed assurances:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:281
+msgid ""
+"Comma separated list of assurances needed for allowing registering the user. "
+"Keep empty, if no assurance needed for registration."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:286
+msgid "Update Options"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:299
+msgid "SSO user data"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:325
+msgid "Refresh"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:328
+msgid "Downloads the assurences from the SSO service"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:337
+msgid "Unbind"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:340
+msgid "Unbinding SSO account from the user"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:351
+#: includes/class_edemo-ssoauth_widgets.php:56
+msgid "Bind SSO account"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:353
+msgid ""
+"This will bind your account with an SSO account. If you are logged in to "
+"your SSO account, this goes automaticly. Otherwise you will be redirected to "
+"the SSO login page served by SSO Service. "
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:354
+msgid ""
+"If you have here registered with your SSO account, that will be merged in "
+"this account with all activity data stored before. User data still remain."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:361
+msgid "Ban user"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:365
+msgid "Disable account:"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:372
+msgid "Set this to ban the user. User will be unable to login."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:159
+msgid "Your SSO metadata has been refreshed successfully"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:160
+msgid "The user's SSO metadata has been refreshed successfully"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:164
+msgid "Something went wrong, the userid is different as expected."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:169
+msgid "Something went wrong, the user doesn't have SSO metada. Refresh aborted"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:180
+msgid ""
+"Registering with SSO service isn't allowed momentarily.<br/>Try to contact "
+"with the site administrator."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:188
+msgid "You are signed in"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:188
+msgid "Can't log in"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:196
+msgid ""
+"This user hasn't registered yet. Would you like to <a href=\"%s\">register</"
+"a>?"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:200
+msgid ""
+"You haven't account here, registering with SSO service isn't allowed "
+"momentarily.<br/>Try to contact with the site administrator."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:210
+msgid ""
+"Old SSO user has been erased, its data has been reassigned to the current "
+"user. "
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:213
+msgid "SSO account has been binded successfully"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:220
+msgid ""
+"Your SSO metadata has been deleted. You can't login with SSO service anymore."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:221
+msgid ""
+"SSO metadata has been deleted. The user can't login with SSO service anymore."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:222
+msgid "Someting went wrong, can't delete usermeta"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:269
+#: public/class_edemo-ssoauth_public.php:244
+msgid "Something went wrong at refreshing user meta."
+msgstr ""
+
+#: admin/class_edemo-ssoauth_ajax.php:307
+#: public/class_edemo-ssoauth_public.php:148
+msgid "<strong>ERROR</strong>: This user account is disabled."
+msgstr ""
+
+#: edemo-ssoauth.php:37
+msgid "Login / Logout"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_communication.php:202
+msgid "The SSO-server's response: "
+msgstr ""
+
+#: includes/class_edemo-ssoauth_communication.php:211
+msgid "Unexpected response cames from SSO Server"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:45
+msgid "Welcome "
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:60
+msgid "Refresh SSO data"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:61
+msgid "Show user profile"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:62
+msgid "Logout"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:69
+msgid "Login with SSO"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:73
+msgid "Register with SSO"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:79
+#: public/class_edemo-ssoauth_public.php:119
+msgid "Sorry! Login with SSO service isn't allowed temporarily."
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:85
+msgid "SSO services"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:103
+msgid "New title"
+msgstr ""
+
+#: includes/class_edemo-ssoauth_widgets.php:108
+msgid "Title:"
+msgstr ""
+
+#: public/class_edemo-ssoauth_public.php:102
+#: public/class_edemo-ssoauth_public.php:105
+#: public/class_edemo-ssoauth_public.php:108
+msgid "SSO login"
+msgstr ""
+
+#: public/class_edemo-ssoauth_public.php:113
+#: public/class_edemo-ssoauth_public.php:116
+msgid "SSO register"
+msgstr ""
+
+#: public/class_edemo-ssoauth_public.php:307
+msgid "SSO user"
+msgstr ""
+
+#: public/class_edemo-ssoauth_public.php:326
+msgid "The following assurances needed for registration: "
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "eDemo SSO authentication"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/edemo/wp_oauth_plugin/wiki"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Allows you connect to the Edemo SSO server, and autenticate the users, who "
+"acting on your site"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Claymanus"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://github.com/Claymanus"
+msgstr ""

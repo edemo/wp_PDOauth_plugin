@@ -1,0 +1,19 @@
+div.message-frame {
+    top: 100px;
+	width: 370px;
+    right: 0;
+    left: 0;
+    margin: auto;
+    position: fixed;
+    border: 1px lightgray solid;
+	display:none;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
+	-moz-box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
+	box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
+	background-color: rgba(243, 249, 230, 0.92)
+}
+
+

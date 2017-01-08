@@ -1,0 +1,411 @@
+# Copyright (C) 2015 eDemo SSO authentication
+# This file is distributed under the same license as the eDemo SSO authentication package.
+msgid ""
+msgstr ""
+"Project-Id-Version: eDemo SSO authentication 0.01\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/eDemo-SSOauth\n"
+"POT-Creation-Date: 2016-11-13 11:52+0100\n"
+"PO-Revision-Date: 2016-11-13 12:46+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+
+#: admin/class_edemo-ssoauth_admin.php:163
+msgid "Options updated."
+msgstr "Beállítások frissítve"
+
+#: admin/class_edemo-ssoauth_admin.php:170
+msgid "eDemo SSO Authentication Options"
+msgstr "eDemo SSO plugin beállítása"
+
+#: admin/class_edemo-ssoauth_admin.php:176
+msgid "SSO service URL:"
+msgstr "ADA szolgáltatás URL:"
+
+#: admin/class_edemo-ssoauth_admin.php:180
+msgid "The base URL of the SSO service"
+msgstr "ADA szolgáltatás domain URL-je"
+
+#: admin/class_edemo-ssoauth_admin.php:185
+msgid "Application name:"
+msgstr "Alkalmazás neve:"
+
+#: admin/class_edemo-ssoauth_admin.php:189
+msgid "Used for registering the application"
+msgstr ""
+"Ezzel a névvel regisztráljuk az alkalmazást az eDemo ADA szolgáltatásban."
+
+#: admin/class_edemo-ssoauth_admin.php:194
+msgid "Application key:"
+msgstr "Alklamazás kulcs"
+
+#: admin/class_edemo-ssoauth_admin.php:198
+msgid "Application key."
+msgstr ""
+"Az alkalmazás azonosításához kell az ADA szerverrel való kommunikáció során."
+
+#: admin/class_edemo-ssoauth_admin.php:203
+msgid "Application secret:"
+msgstr "Az alkalmazás titkos kódja:"
+
+#: admin/class_edemo-ssoauth_admin.php:207
+msgid "Application secret."
+msgstr ""
+"Az alkalmazás azonosításához kell az ADA szerverrel való kommunikáció során."
+
+#: admin/class_edemo-ssoauth_admin.php:212
+msgid "Allow verify ssl certificates:"
+msgstr "SSL tanusítvány ellenőrzése:"
+
+#: admin/class_edemo-ssoauth_admin.php:216
+msgid ""
+"If this set, the ssl certificates will be verified during the communication "
+"with sso server. Uncheck is recommended if your site has no cert, or the "
+"issuer isn't validated."
+msgstr ""
+"Ha ez be van állítva, az SSL tanusítványok ellenőrizve lesznek az ADA "
+"szerverrel való kommunikáció során. Ajánlott kikapcsolni, ha ennek a site-"
+"nak nincs SSL tanusítványa, vagy a kiállítója nincs validálva."
+
+#: admin/class_edemo-ssoauth_admin.php:221
+msgid "eDemo_SSO callback URL:"
+msgstr "eDemo_SSO callback URL:"
+
+#: admin/class_edemo-ssoauth_admin.php:225
+msgid "Callback uri for communication with the SSO_server"
+msgstr ""
+
+#: admin/class_edemo-ssoauth_admin.php:230
+msgid "SSO account binding:"
+msgstr "Felhasználói fiók összekötése:"
+
+#: admin/class_edemo-ssoauth_admin.php:234
+msgid ""
+"If this set, a SSO account can be binded with the given Wordpress account. "
+"User gets a 'bind' button on his datasheet and in the SSO login widget."
+msgstr ""
+"Ha ez be van kapcsolava, egy meglévő Worpress fiókhoz hozzárendelhetünk egy "
+"SSO fiókot. Az SSO azonosítóval még nem rendelkező bejelentkezett Worpress "
+"felhasználónak 'fiók összekötése' gombok jelennek meg a login widget-ben "
+"illetve a profil oldalán."
+
+#: admin/class_edemo-ssoauth_admin.php:239
+msgid "Allow registering:"
+msgstr "A regisztráció engedélyezett:"
+
+#: admin/class_edemo-ssoauth_admin.php:243
+msgid "This setting allows the user registrating with SSO service."
+msgstr ""
+"Ez a beállítás engedélyezi, hogy a felhasználó regisztráljon az ADA "
+"szolgáltatás segítságável."
+
+#: admin/class_edemo-ssoauth_admin.php:248
+msgid "Allow sign in:"
+msgstr "A bejelentkezés engedélyezett:"
+
+#: admin/class_edemo-ssoauth_admin.php:252
+msgid ""
+"This setting allows the users logging in. In emergency case unset this "
+"option to forbid the users logging in"
+msgstr ""
+"Ez a beállítás engedélyezi a bejelentkezést az ADA szolgáltatás "
+"segítségével. Kikapcsolásával - például az oldal karbantartása alatt -  "
+"megakadályozhatjuk , hogy a felhasználók bejelentkezzenek."
+
+#: admin/class_edemo-ssoauth_admin.php:257
+msgid "Hide adminbar:"
+msgstr "Adminbar kikapcsolása:"
+
+#: admin/class_edemo-ssoauth_admin.php:261
+msgid ""
+"If this set, the hide admin bar option will be set on the users profile "
+"during registration process. That means, the admin bar willn't be shown as "
+"default if the user logged in. Anyway hide and show admin bar can be set on "
+"the user's profile page"
+msgstr ""
+"Ha ezt bekapcsoljuk, nem fog látszódni az adminbar a felhasználóknak a "
+"megjelenített tartalom felett."
+
+#: admin/class_edemo-ssoauth_admin.php:266
+msgid "Default WP role for SSO usrs:"
+msgstr "Alapértelmezett WP szerepkör:"
+
+#: admin/class_edemo-ssoauth_admin.php:272
+msgid "The default WP role, which will be added during the SSO registration"
+msgstr ""
+"Ez a szerepkör lesz hozzáadva az ADA-val regisztráló felhasználók "
+"profiljához."
+
+#: admin/class_edemo-ssoauth_admin.php:277
+msgid "Needed assurances:"
+msgstr "Szükséges igazolások:"
+
+#: admin/class_edemo-ssoauth_admin.php:281
+msgid ""
+"Comma separated list of assurances needed for allowing registering the user. "
+"Keep empty, if no assurance needed for registration."
+msgstr ""
+"A regisztrációhoz illetve belépéshez szükséges ADA igazolások vesszővel "
+"elválasztott listája. Ha ez üres, akkor nincs igazolás ellenőrzés."
+
+#: admin/class_edemo-ssoauth_admin.php:286
+msgid "Update Options"
+msgstr "Módosítások mentése"
+
+#: admin/class_edemo-ssoauth_admin.php:299
+msgid "SSO user data"
+msgstr "adatok az ADA szolgáltatásból"
+
+#: admin/class_edemo-ssoauth_admin.php:325
+msgid "Refresh"
+msgstr "Frissítés"
+
+#: admin/class_edemo-ssoauth_admin.php:328
+msgid "Downloads the assurences from the SSO service"
+msgstr "Az igazolások letöltése az ADA szerverről"
+
+#: admin/class_edemo-ssoauth_admin.php:337
+msgid "Unbind"
+msgstr "Leválasztás"
+
+#: admin/class_edemo-ssoauth_admin.php:340
+msgid "Unbinding SSO account from the user"
+msgstr "Laválasztja az ADA fiókot erről a Wordpress fiókról"
+
+#: admin/class_edemo-ssoauth_admin.php:351
+#: includes/class_edemo-ssoauth_widgets.php:56
+msgid "Bind SSO account"
+msgstr "ADA fiók összekötése"
+
+#: admin/class_edemo-ssoauth_admin.php:353
+msgid ""
+"This will bind your account with an SSO account. If you are logged in to "
+"your SSO account, this goes automaticly. Otherwise you will be redirected to "
+"the SSO login page served by SSO Service. "
+msgstr ""
+"Ezzel összeköthető a felhasználói Wordpress fiókja az ADA fiókjával. Ha a "
+"felhasználó be van jelentkezve az ADA fiókjába, ez automatikusan "
+"megtörténik, ellenkező esetben az ADA bejelentkező felülete jelenik meg."
+
+#: admin/class_edemo-ssoauth_admin.php:354
+msgid ""
+"If you have here registered with your SSO account, that will be merged in "
+"this account with all activity data stored before. User data still remain."
+msgstr ""
+"Ha a felhasználó már regisztrált itt az ADA fiókjával, akkor a két fiók "
+"összeolvad, a jelenlegi felhasználóadatok megmaradnak, az ADA-s fiók "
+"felhasználói aktivitásából keletkezett adatok ehhez a fiókhoz rendelődnek."
+
+#: admin/class_edemo-ssoauth_admin.php:361
+msgid "Ban user"
+msgstr "Felhasználó kizárása"
+
+#: admin/class_edemo-ssoauth_admin.php:365
+msgid "Disable account:"
+msgstr "Felhasználói fiók felfüggesztése:"
+
+#: admin/class_edemo-ssoauth_admin.php:372
+msgid "Set this to ban the user. User will be unable to login."
+msgstr "Bekapcsolásával kizárható a felhasználó, nem tud bejelentkezni többet."
+
+#: admin/class_edemo-ssoauth_ajax.php:159
+msgid "Your SSO metadata has been refreshed successfully"
+msgstr "Frissítettük az Ön igazolásait az ADA szolgáltatásból "
+
+#: admin/class_edemo-ssoauth_ajax.php:160
+msgid "The user's SSO metadata has been refreshed successfully"
+msgstr "Sikerült frissíteni a felhasználó igazolásait"
+
+#: admin/class_edemo-ssoauth_ajax.php:164
+msgid "Something went wrong, the userid is different as expected."
+msgstr "Hiba történt, a felhasználó azonosítója különbözik az elvárttól"
+
+#: admin/class_edemo-ssoauth_ajax.php:169
+msgid "Something went wrong, the user doesn't have SSO metada. Refresh aborted"
+msgstr ""
+"Hiba történt. A felhasználó nem rendelkezik a SSO metaadatokkal. A "
+"frissítést megszakítottuk."
+
+#: admin/class_edemo-ssoauth_ajax.php:180
+msgid ""
+"Registering with SSO service isn't allowed momentarily.<br/>Try to contact "
+"with the site administrator."
+msgstr ""
+"Az ADA szolgáltatással történő regisztráció nem engedélyezett pillanatnyilag."
+"<br/>Lépjen kapcsolatba a weblap adminisztrátorával."
+
+#: admin/class_edemo-ssoauth_ajax.php:188
+msgid "You are signed in"
+msgstr "Ön sikeresen bejelentkezett."
+
+#: admin/class_edemo-ssoauth_ajax.php:188
+msgid "Can't log in"
+msgstr "A bejelentkezés nem sikerült."
+
+#: admin/class_edemo-ssoauth_ajax.php:196
+msgid ""
+"This user hasn't registered yet. Would you like to <a href=\"%s\">register</"
+"a>?"
+msgstr ""
+"Ez a felhasználó még nem rendelkezik fiókkal. Szeretne <a href=\"%s"
+"\">regisztrálni</a>?"
+
+#: admin/class_edemo-ssoauth_ajax.php:200
+msgid ""
+"You haven't account here, registering with SSO service isn't allowed "
+"momentarily.<br/>Try to contact with the site administrator."
+msgstr ""
+"Önnek még nincs felhasználói fiókja, a regisztráció pillanatnyilag nem "
+"engedélyezett.<br/>Lépjen kapcsolatba a weblap adminisztrátorával."
+
+#: admin/class_edemo-ssoauth_ajax.php:210
+msgid ""
+"Old SSO user has been erased, its data has been reassigned to the current "
+"user. "
+msgstr ""
+"Az korábbi ADA felhasználót töröltük, az adatait a jelenlegi felhasználóhoz "
+"rendeltük"
+
+#: admin/class_edemo-ssoauth_ajax.php:213
+msgid "SSO account has been binded successfully"
+msgstr "A felhasználói fiók hozzárendelése megtörtént."
+
+#: admin/class_edemo-ssoauth_ajax.php:220
+msgid ""
+"Your SSO metadata has been deleted. You can't login with SSO service anymore."
+msgstr ""
+"Az Ön ADA szolgáltatásból származó adatait töröltük, ADA fiókjával nem tud "
+"többet bejelentkezni."
+
+#: admin/class_edemo-ssoauth_ajax.php:221
+msgid ""
+"SSO metadata has been deleted. The user can't login with SSO service anymore."
+msgstr ""
+"Az ADA szolgáltatásból származó adatokat töröltük, a felhasználó nem tud "
+"többé az ADA fiókjával bejelentkezni"
+
+#: admin/class_edemo-ssoauth_ajax.php:222
+msgid "Someting went wrong, can't delete usermeta"
+msgstr "Hiba történt, nem tudjuk törölni a felhasználó metaadatait."
+
+#: admin/class_edemo-ssoauth_ajax.php:269
+#: public/class_edemo-ssoauth_public.php:244
+msgid "Something went wrong at refreshing user meta."
+msgstr "Hiba történt a felhasználó metaadatainak frissítése közben"
+
+#: admin/class_edemo-ssoauth_ajax.php:307
+#: public/class_edemo-ssoauth_public.php:148
+msgid "<strong>ERROR</strong>: This user account is disabled."
+msgstr "<strong>HIBA</strong>: Ez a felhasználói fiók fel van függesztve."
+
+#: edemo-ssoauth.php:37
+msgid "Login / Logout"
+msgstr "Bejelentkezés / Kilépés"
+
+#: includes/class_edemo-ssoauth_communication.php:202
+msgid "The SSO-server's response: "
+msgstr "Az ADA szerver üzenete: "
+
+#: includes/class_edemo-ssoauth_communication.php:211
+msgid "Unexpected response cames from SSO Server"
+msgstr "Váratlan üzenet érkezett az ADA szervertől."
+
+#: includes/class_edemo-ssoauth_widgets.php:45
+msgid "Welcome "
+msgstr "Üdvözöljük"
+
+#: includes/class_edemo-ssoauth_widgets.php:60
+msgid "Refresh SSO data"
+msgstr "ADA adatok frissítése"
+
+#: includes/class_edemo-ssoauth_widgets.php:61
+msgid "Show user profile"
+msgstr "Felhasználói profil"
+
+#: includes/class_edemo-ssoauth_widgets.php:62
+msgid "Logout"
+msgstr "Kijelentkezés"
+
+#: includes/class_edemo-ssoauth_widgets.php:69
+msgid "Login with SSO"
+msgstr "ADA bejelentkezés"
+
+#: includes/class_edemo-ssoauth_widgets.php:73
+msgid "Register with SSO"
+msgstr "Regisztráció ADA fiókkal"
+
+#: includes/class_edemo-ssoauth_widgets.php:79
+#: public/class_edemo-ssoauth_public.php:119
+msgid "Sorry! Login with SSO service isn't allowed temporarily."
+msgstr "Sajnáljuk! ADA fiókkal átmenetileg nem lehet bejelentkezni."
+
+#: includes/class_edemo-ssoauth_widgets.php:85
+msgid "SSO services"
+msgstr "ADA szolgáltaás"
+
+#: includes/class_edemo-ssoauth_widgets.php:103
+msgid "New title"
+msgstr "Új cím"
+
+#: includes/class_edemo-ssoauth_widgets.php:108
+msgid "Title:"
+msgstr "Cím:"
+
+#: public/class_edemo-ssoauth_public.php:102
+#: public/class_edemo-ssoauth_public.php:105
+#: public/class_edemo-ssoauth_public.php:108
+msgid "SSO login"
+msgstr "ADA bejelentkezés"
+
+#: public/class_edemo-ssoauth_public.php:113
+#: public/class_edemo-ssoauth_public.php:116
+msgid "SSO register"
+msgstr "ADA regisztráció"
+
+#: public/class_edemo-ssoauth_public.php:307
+msgid "SSO user"
+msgstr "ADA felhasználó"
+
+#: public/class_edemo-ssoauth_public.php:326
+msgid "The following assurances needed for registration: "
+msgstr "Az alábbi ADA igazolások szükségesek a regisztrációhoz:"
+
+#. Plugin Name of the plugin/theme
+msgid "eDemo SSO authentication"
+msgstr "ADA felhasználó azonosítás"
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/edemo/wp_oauth_plugin/wiki"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Allows you connect to the Edemo SSO server, and autenticate the users, who "
+"acting on your site"
+msgstr ""
+"Lehetővé teszi a felhasználók azonosítását az eDemo SSO szolgáltatáson "
+"keresztül. "
+
+#. Author of the plugin/theme
+msgid "Claymanus"
+msgstr "Claymanus"
+
+#. Author URI of the plugin/theme
+msgid "https://github.com/Claymanus"
+msgstr ""
+
+#~ msgid "User's SSO data has been updated successfully"
+#~ msgstr "A felhasználó SSO adatait frissítettük."
+
+#~ msgid "User not found"
+#~ msgstr "A felhasználó nem létezik."
+
+#~ msgid "Invalid page request - missing code"
+#~ msgstr "Nem megfelelő lekérés - az azonosító kód hiányzik."
+
+#~ msgid "Invalid response has been came from SSO server"
+#~ msgstr "Nem értelmezhető üzenet érkezett az SSO szervertől."
