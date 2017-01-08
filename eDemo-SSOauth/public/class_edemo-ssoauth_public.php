@@ -83,52 +83,9 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	public function enqueue_scripts() {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/edemo-ssoauth_public.js', array( ), $this->version, false );
 	}
-	/**
-	 * Add SSO login area to the bottom of login screen
-	 *
-	 * Add login button and register button.
-	 * The ability is controlled trough the 'allowLogin' and 'allowRegister' options.
-	 *
-	 * @since    0.0.1
-	 */	
-	function login_page_extension() { ?>
-	<div style="width: 320px; margin: 20px auto; display: table; background: #FFF none repeat scroll 0% 0%; box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.13);">
-		<div style="margin: 26px 24px 26px;">
-		<h3 align="center" style="margin-bottom: 15px;"><?= __('SSO login',eDemo_SSOauth::TEXTDOMAIN) ?></h3>
-		<div class="button <?= ($this->allowLogin)?'':'disabled'?>">
-	<?php if ($this->allowLogin) {?>
-			<a href="<?= $this->get_SSO_action_link('login')    ?>"><?=__( 'SSO login', eDemo_SSOauth::TEXTDOMAIN );?></a>
-	<?php }
-	else { ?>
-			<?=__( 'SSO login', eDemo_SSOauth::TEXTDOMAIN );?>
-	<?php }?>
-		</div>
-		<div class="button <?= ($this->allowLogin and $this->allowRegister)?'':'disabled'?>" width="50%">
-	<?php if ($this->allowRegister and $this->allowLogin) {?>
-			<a href="<?= $this->get_SSO_action_link('register') ?>"><?=__( 'SSO register', eDemo_SSOauth::TEXTDOMAIN );?></a>
-	<?php }
-	else { ?>
-			<?=__( 'SSO register', eDemo_SSOauth::TEXTDOMAIN );?>
-	<?php }?>
-		</div>
-		<p style="margin-top: 15px;"><?= ($this->allowLogin)?'':__('Sorry! Login with SSO service isn\'t allowed temporarily.', eDemo_SSOauth::TEXTDOMAIN)?></p>
-	</div></div>
-	<?php 
-	}
 	
-	/**
-	 * Adding rewrite rules to be able catching the callback calls
-	 *
-	 * @since    0.0.1
-	 */		
-	function add_rewrite_rules() {
-		global $wp_rewrite;
-		$default_callback_uri='sso_callback';
-		$callback_uri=get_option('eDemoSSO_callback_uri',$default_callback_uri);
-		if (!$callback_uri or $callback_uri=="") $callback_uri=$default_callback_uri;
-		$rules = array( $callback_uri.'(.+?)$' => 'index.php$matches[1]&'.$callback_uri.'=true',
-						$callback_uri.'$'      => 'index.php?'.$callback_uri.'=true&'  );
-		$wp_rewrite->rules = $rules + (array)$wp_rewrite->rules;
+	public function enqueue_styles() {
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/public.css', array(), $this->version, 'all' );
 	}
 	
 	/**
@@ -158,6 +115,13 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		if ( $this->has_user_SSO($user->ID) ) {
 
 		}*/
+	}
+	
+	#filtered by get_footer
+	function the_message_frame(){
+?>
+		<div id="<?= eDemo_SSOauth::MESSAGE_FRAME_ID ?>" class="message-frame"></div>
+<?php
 	}
 	
 	/**
@@ -214,122 +178,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		}
 		return false;
 	}
-	/*
-	* Do action 
-	*
-	* Doing the wanted action according to the command comes in the param
-	*  if the nonce check is succeeded.
-	*
-	* Actions are:
-	* - login		* Login the user with the SSO data
-	* - register	* Register the user with the SSO data
-	* - refresh		* Refresh the user SSO data
-	* - binding		* Bind an SSO account with the current wp account. The old 'SSO only' account will be deleted if given.
-	* - unbind		* Delete the user's SSO data.
-	* - get_message	* JSON response on an AJAX request. Contains the plugin messages.
-	*
-	* @since	0.0.1
-	* @access   private
-	* @param	string	$action	contains the command
-	*
-	* @return	nothing
-	*/
-	private function do_action( $action ){
-		if ( wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
-			$uid = isset($_REQUEST[eDemo_SSOauth::SSO_UIDVAR]) ?
-					$_REQUEST[eDemo_SSOauth::SSO_UIDVAR] :
-					get_current_user_id();
-			if ( isset($_REQUEST['code']) ) {
-				if ( $user_data = $this->get_user_data_by_code( $_REQUEST['code'] ) ) {
-					$ssoUser = $this->get_user_by_SSO_id( $user_data['userid'] );					
-				}
-			}
-			switch ($action){
-				case 'refresh':
-					if ( $this->has_user_SSO( $uid ) ) {
-						if ( $user_data = $this->get_user_data_by_refresh_token( $this->get_refresh_token( $uid  ) ) ){
-							if ( $user_data['userid']==get_user_meta( $uid, eDemo_SSOauth::USERMETA_ID, true ) ) {
-								if ( $this->refreshUserMeta( $uid,$user_data ) ) {
-									$_SESSION['eDemoSSO_auth_message'] = ($uid==get_current_user_id())?
-										__('Your SSO metadata has been refreshed successfully', eDemo_SSOauth::TEXTDOMAIN):
-										__('The user\'s SSO metadata has been refreshed successfully', eDemo_SSOauth::TEXTDOMAIN);
-								}
-							}
-							else {
-								$_SESSION['eDemoSSO_error_message']=__('Something went wrong, the userid is different as expected.', eDemo_SSOauth::TEXTDOMAIN);
-							}
-						}
-					}
-					else {
-						$_SESSION['eDemoSSO_error_message']=__('Something went wrong, the user doesn\'t have SSO metada. Refresh aborted', eDemo_SSOauth::TEXTDOMAIN);
-					}
-					break;
-				case 'register':
-					if ( !$ssoUser ) {
-						if ( $this->allowRegister ) {
-							if ( $user_id = $this->register_the_user( $user_data )) {
-								$ssoUser = get_user_by( 'id', $user_id );
-							}
-						}
-						else {
-							$_SESSION['eDemoSSO_error_message'] = __('Registering with SSO service isn\'t allowed momentarily.<br/>Try to contact with the site administrator.', eDemo_SSOauth::TEXTDOMAIN);
-						}
-					}
-				case 'login':
-					if ( isset( $ssoUser ) and !empty( $ssoUser ) ) {
-						$this->refreshUserMeta( $ssoUser->ID, $user_data );
-						$response=$this->authenticate_user( $ssoUser );
-						if ( !is_wp_error( $response ) ) {
-							$_SESSION['eDemoSSO_error_message'] = ($this->log_in_the_user($ssoUser))?__('You are signed in', eDemo_SSOauth::TEXTDOMAIN):__("Can't log in", eDemo_SSOauth::TEXTDOMAIN);
-						}
-						else {
-							$_SESSION['eDemoSSO_error_message'] = $response->get_error_message();
-						}
-					}
-					else {
-						if ( $this->allowRegister ) {
-							$mstr=__( 'This user hasn\'t registered yet. Would you like to <a href="%s">register</a>?', eDemo_SSOauth::TEXTDOMAIN);
-							$_SESSION['eDemoSSO_error_message'] = sprintf( wp_kses( $mstr, array( 'a' => array( 'href' => array('%s') ) ) ) , $this->get_SSO_action_link('register') );
-						}
-						else {
-							$_SESSION['eDemoSSO_error_message'] = __('You haven\'t account here, registering with SSO service isn\'t allowed momentarily.<br/>Try to contact with the site administrator.', eDemo_SSOauth::TEXTDOMAIN);
-						}
-					}
-					break;
-				case 'binding':
-					if ( is_user_logged_in() ) {
-						$message='';
-						if ( $ssoUser = get_users( array('meta_key' => eDemo_SSOauth::USERMETA_ID, 'meta_value' => $user_data['userid']) ) ) {
-							require_once( ABSPATH.'wp-admin/includes/user.php' );
-							wp_delete_user( $ssoUser[0]->ID, get_current_user_id() );
-							$message=__( 'Old SSO user has been erased, its data has been reassigned to the current user. ', eDemo_SSOauth::TEXTDOMAIN );
-						}
-						$this->refreshUserMeta( get_current_user_id(), $user_data );
-						$_SESSION['eDemoSSO_auth_message'] = $message.__( "SSO account has been binded successfully", eDemo_SSOauth::TEXTDOMAIN);
-					}							
-					break;
-				case 'unbind':
-					if ( $this->has_user_SSO( $uid ) ) {
-						if ( $this->delete_SSO_data_of_the_user( $uid ) ) 
-							$_SESSION['eDemoSSO_auth_message'] = ($uid==get_current_user_id())?
-								__( 'Your SSO metadata has been deleted. You can\'t login with SSO service anymore.', eDemo_SSOauth::TEXTDOMAIN):
-								__( 'SSO metadata has been deleted. The user can\'t login with SSO service anymore.', eDemo_SSOauth::TEXTDOMAIN);
-						else $_SESSION['eDemoSSO_error_message']=__('Someting went wrong, can\'t delete usermeta', eDemo_SSOauth::TEXTDOMAIN);
-					}
-					break;
-				case 'get_message':
-					header( 'Content-Type:application/json; charset=utf-8' );
-					$message='';
-					if ( isset( $_SESSION['eDemoSSO_auth_message'] ) ) {
-						$message=$_SESSION['eDemoSSO_auth_message'];
-						$_SESSION['eDemoSSO_auth_message']='';
-					}
-					echo json_encode( array( 'text'=>$message ) );
-					exit;
-					break;
-			}
-		}
-	}
+
 	/*
 	* Refresh the user's SSO data
 	*
@@ -388,62 +237,6 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->data->user_login );
 		return get_current_user_id()==$user->ID;
-	}
-	/*
-	* Registering the new user
-	*
-	* After checking the needed assurance, insert a new user in the Wordpress user database with
-	* the data comes from the SSO service.
-	* settings controlled by plugin options are:
-	* - user role
-	* - hide admin bar if user logs in
-	* - account accessability
-	*
-	* @since 0.0.1
-	* @access   private
-	* @param	array  	$user_data	user data object coming from SSO service and refresh_token
-	*
-	* @return	mixed		the new wp user's id on success, false on failure.
-	*/
-	private function register_the_user( $user_data ){
-		if ( $this->check_needed_assurances( $user_data['assurances'] ) ) {
-			$display_name = (isset($user_data['display_name'])) ? $user_data['display_name'] : __('SSO user', eDemo_SSOauth::TEXTDOMAIN);
-			$user_id = wp_insert_user( array(	'user_login' => $user_data['userid'],
-												'user_email' => $user_data['email'],
-												'display_name' => $display_name,
-												'user_pass' => null,
-												'role' => $this->get_user_role($user_data['assurances']) 
-											) );
-			if( !is_wp_error($user_id) ) {
-				// creating SSO specific meta data
-				$this->refreshUserMeta( $user_id, $user_data );
-				wp_update_user( array('ID'=>$user_id, 'nickname'=> $display_name ));
-				update_user_option( $user_id, 'eDemoSSO_account_disabled', false, false );
-				if ( $this->hide_adminbar ) update_user_option( $user_id, 'show_admin_bar_front', false );
-				return $user_id;
-			}
-			else {
-				$_SESSION['eDemoSSO_error_message'] = $user_id->get_error_message(); 
-			}
-		}
-		else $_SESSION['eDemoSSO_error_message'] = __( "The following assurances needed for registration: ", eDemo_SSOauth::TEXTDOMAIN ).str_replace( ',', ', ', $this->needed_assurances);
-		return false;
-	}
-	/*
-	* Returns the user role with which the user will be registered
-	*
-	* The user role will be set according the admin options and SSO assurances
-	* Can be filtered with the 'eDemo-SSOauth_get_user_role' filter
-	*
-	* @since 0.0.1
-	* @access   private
-	* @param	array  	$assurances		array of assurances coming from the SSO service
-	*
-	* @return	string	$user_role		the user role
-	*/
-	private function get_user_role( $assurances ){
-		$user_role = get_option( 'eDemoSSO_default_role' );
-		return apply_filters( 'eDemo-SSOauth_get_user_role', $user_role, $assurances );
 	}
 }
 ?>

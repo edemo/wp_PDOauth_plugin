@@ -61,7 +61,7 @@
 	 */
 	function __construct( ) {
 		$this->serviceURI = get_option( 'eDemoSSO_serviceURI' );
-		$this->callbackURL = get_site_url( "", "", "https" )."/".get_option( 'eDemoSSO_callback_uri' );
+		$this->callbackURL = get_site_url( "", "", "https" ).eDemo_SSOauth::CALLBACK_URI;
 		$this->appkey = get_option( 'eDemoSSO_appkey' );
 		$this->secret = get_option( 'eDemoSSO_secret' );
 		$this->sslverify = get_option( 'eDemoSSO_sslverify' );
@@ -72,6 +72,7 @@
         $this->default_role = get_option('eDemoSSO_default_role');
 		$this->hide_adminbar = get_option('eDemoSSO_hide_adminbar');
 		$this->array_of_needed_assurances = ($this->needed_assurances)?explode(',',$this->needed_assurances):array();
+		$this->terms_of_usege_page_url = get_option('terms_of_usege_page_url');
 	}
 	/**
 	 * registering login widget
@@ -79,9 +80,7 @@
 	 * @since    0.0.1
 	 */	
 	public function register_widgets() {
-		error_log('widget is registering');
 		register_widget( 'eDemo_SSOauth_login_widget' );
-error_log('widget is registered');
 	}
 		/**
 	 * Display messages in the notice area
@@ -125,13 +124,16 @@ error_log('widget is registered');
 		return update_user_meta($user_id, eDemo_SSOauth::USERMETA_TOKEN, $refresh_token); 
 	}	
 	public function SSO_redirect_uri($params_array){
-		return '&redirect_uri='.urlencode($this->callbackURL.'?'.$this->make_urivars($params_array).'&'.eDemo_SSOauth::WP_REDIR_VAR.'='.$_SERVER['REQUEST_URI']);
+		return '&redirect_uri='.urlencode($this->callbackURL.'?'.$this->make_urivars($params_array));
 	}
 	public function is_account_disabled($user_id) {
 		return get_user_option( 'eDemoSSO_account_disabled', $user_id, false );
-	}	
+	}
+	Public function get_button_action($action) {
+		return "javascript: eDemo_SSO.button_click('".$this->get_SSO_action_link($action)."')";
+	}
 	public function get_SSO_action_link($action){
-		return 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.$this->SSO_redirect_uri(array('SSO_action'=>$action,'_wpnonce'=>wp_create_nonce($action)));
+		return 'https://'.$this->serviceURI.eDemo_SSOauth::SSO_AUTH_URI.'?response_type=code&client_id='.$this->appkey.$this->SSO_redirect_uri(array('action'=>'eDemoSSO_'.$action,'_wpnonce'=>wp_create_nonce($action)));
 	}
 	public function get_user_SSO_id($user_id){
 		return get_user_meta($user_id,eDemo_SSOauth::USERMETA_ID, true);
@@ -152,4 +154,21 @@ error_log('widget is registered');
 		}
 		return true;
 	}
+		/*
+	* Returns the user role with which the user will be registered
+	*
+	* The user role will be set according the admin options and SSO assurances
+	* Can be filtered with the 'eDemo-SSOauth_get_user_role' filter
+	*
+	* @since 0.0.1
+	* @access   protected
+	* @param	array  	$assurances		array of assurances coming from the SSO service
+	*
+	* @return	string	$user_role		the user role
+	*/
+	protected function get_user_role( $assurances ){
+		$user_role = get_option( 'eDemoSSO_default_role' );
+		return apply_filters( 'eDemo-SSOauth_get_user_role', $user_role, $assurances );
+	}
+ 
  }

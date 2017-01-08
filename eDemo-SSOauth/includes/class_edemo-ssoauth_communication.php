@@ -88,7 +88,7 @@ class eDemo_SSOauth_com {
 		$this->serviceURI = get_option( 'eDemoSSO_serviceURI' );
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->callbackURL = get_site_url( "", "", "https" )."/".get_option( 'eDemoSSO_callback_uri' );
+		$this->callbackURL = get_site_url( "", "", "https" ).eDemo_SSOauth::CALLBACK_URI;
 		$this->appkey = get_option( 'eDemoSSO_appkey' );
 		$this->secret = get_option( 'eDemoSSO_secret' );
 		$this->sslverify = get_option( 'eDemoSSO_sslverify' );

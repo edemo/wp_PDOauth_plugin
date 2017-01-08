@@ -25,6 +25,7 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 
 	function widget( $args, $instance ) { 
 		// Widget output
+		
 		extract( $args );
 		extract( $this->widget_vars );
 		$title = apply_filters( 'widget_title', $instance['title'] );
@@ -52,24 +53,24 @@ class eDemo_SSOauth_login_widget extends WP_Widget {
 		if ( is_user_logged_in() ) { 
 			if ($allowBind and !$common->has_user_SSO($current_user->ID)) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('binding') ?>"><?= __('Bind SSO account',eDemo_SSOauth::TEXTDOMAIN)?></a></li>
+			<li><a href="<?= $common->get_button_action('binding') ?>"><?= __('Bind SSO account',eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 <?php
 			}
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('refresh') ?>"><?= __('Refresh SSO data',eDemo_SSOauth::TEXTDOMAIN)?></a></li>	
+			<li><a href="<?= $common->get_button_action('refresh') ?>"><?= __('Refresh SSO data',eDemo_SSOauth::TEXTDOMAIN)?></a></li>	
 			<li><a href="/wp-admin/profile.php"><?=__('Show user profile', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
-			<li><a href="<?=wp_logout_url( urldecode($_SERVER['REQUEST_URI']) )?>"><?= __('Logout', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
+			<li><a href="<?=wp_logout_url( get_permalink())?>"><?= __('Logout', eDemo_SSOauth::TEXTDOMAIN)?></a></li>
 <?php	
 		}
 		
 		// section for visitors
 		elseif ( $allowLogin ) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('login')    ?>"><?= __('Login with SSO', eDemo_SSOauth::TEXTDOMAIN)    ?></a></li>
+			<li><a href="<?= $common->get_button_action('login') ?>"><?= __('Login with SSO', eDemo_SSOauth::TEXTDOMAIN)    ?></a></li>
 <?php
 			if ( $allowRegister ) { 
 ?>
-			<li><a href="<?= $common->get_SSO_action_link('register') ?>"><?= __('Register with SSO', eDemo_SSOauth::TEXTDOMAIN) ?></a></li>
+			<li><a href="<?= $common->get_button_action('register') ?>"><?= __('Register with SSO', eDemo_SSOauth::TEXTDOMAIN) ?></a></li>
 <?php
 			}
 		} 

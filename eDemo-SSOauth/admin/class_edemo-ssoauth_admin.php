@@ -53,18 +53,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	 * @since    0.0.1
 	 */
 	public function enqueue_styles() {
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Plugin_Name_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-//		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/plugin-name-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/edemo-ssoauth_admin.css', array(), $this->version, 'all' );
 	}
 	/**
 	 * Register the JavaScript for the admin area.
@@ -72,18 +61,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 	 * @since    0.0.1
 	 */
 	public function enqueue_scripts() {
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Plugin_Name_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-//		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/plugin-name-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/edemo-ssoauth_admin.js', array( 'jquery' ), $this->version, false );
 	}
 	/**
 	 * to hiding admin notices if the current user isn't an admin
@@ -121,7 +99,7 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		$this->default_role		= $_POST['EdemoSSO_default_role'];
 		$this->hide_adminbar	= isset($_POST['EdemoSSO_hide_adminbar']);
 		$this->needed_assurances= $_POST['EdemoSSO_needed_assurances'];
-		$this->callback_uri		= $_POST['EdemoSSO_callback_uri'];
+		$this->terms_of_usege_page_url = $_POST['EdemoSSO_terms_of_usege_page_url'];
 		
 		update_option( 'eDemoSSO_serviceURI'   		, $this->serviceURI );
 		update_option( 'eDemoSSO_secret'   			, $this->secret );
@@ -131,10 +109,10 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		update_option( 'eDemoSSO_allowBind'			, $this->allowBind );
 		update_option( 'eDemoSSO_allowRegister'		, $this->allowRegister );
 		update_option( 'eDemoSSO_allowLogin'		, $this->allowLogin );
-		update_option( 'eDemoSSO_callback_uri'		, $this->callback_uri );
 		update_option( 'eDemoSSO_hide_adminbar'		, $this->hide_adminbar );
 		update_option( 'eDemoSSO_default_role'  	, $this->default_role );
 		update_option( 'eDemoSSO_needed_assurances' , str_replace(' ', '', $this->needed_assurances) );
+		update_option( 'eDemoSSO_terms_of_usege_page_url'  	, $this->terms_of_usege_page_url );
 	}
 	
 	// Display the admin page.
@@ -152,17 +130,13 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 		?>
 		<div class="wrap">
 
-			<h2><?= __( 'eDemo SSO Authentication Options', eDemo_SSOauth::TEXTDOMAIN ) ?></h2>
+			<h1><?= __( 'eDemo SSO Authentication Options', eDemo_SSOauth::TEXTDOMAIN ) ?></h1>
 			<form method="post">
 				<fieldset class='options'>
 					<table class="form-table">
 						<tr>
-							<th>
-								<label for="EdemoSSO_serviceURI"><?= __( 'SSO service URL:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
-							</th>
-							<td>
-								<input type='text' size='40' name='EdemoSSO_serviceURI' id='EdemoSSO_serviceURI' value='<?= get_option('eDemoSSO_serviceURI'); ?>' />
-								<p class="description"><?= __( 'The base URL of the SSO service', eDemo_SSOauth::TEXTDOMAIN ) ?></p>
+							<td colspan="2">
+								<h2><?= __('The data below is needed for registering application in the SSO service:', eDemo_SSOauth::TEXTDOMAIN ) ?></h2>
 							</td>
 						</tr>
 						<tr>
@@ -194,20 +168,34 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 						</tr>
 						<tr>
 							<th>
+								<label for="EdemoSSO_callback_uri"><?= __( 'eDemo_SSO callback URL:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
+							</th>
+							<td>
+								<strong>/wp-admin/admin-ajax.php</strong>
+								<p class="description"><?=__('Callback uri for communication with the SSO_server', eDemo_SSOauth::TEXTDOMAIN)?></p>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<h2><?= __('General settings:', eDemo_SSOauth::TEXTDOMAIN ) ?></h2>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="EdemoSSO_serviceURI"><?= __( 'SSO service URL:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
+							</th>
+							<td>
+								<input type='text' size='40' name='EdemoSSO_serviceURI' id='EdemoSSO_serviceURI' value='<?= get_option('eDemoSSO_serviceURI'); ?>' />
+								<p class="description"><?= __( 'The base URL of the SSO service', eDemo_SSOauth::TEXTDOMAIN ) ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th>
 								<label for="EdemoSSO_sslverify"><?= __( 'Allow verify ssl certificates:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
 							</th>
 							<td>
 								<input type='checkbox' name='EdemoSSO_sslverify' id='EdemoSSO_sslverify' <?= (get_option('eDemoSSO_sslverify')?'checked':''); ?> />
 								<p class="description"><?= __( "If this set, the ssl certificates will be verified during the communication with sso server. Uncheck is recommended if your site has no cert, or the issuer isn't validated.", eDemo_SSOauth::TEXTDOMAIN ) ?></p>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="EdemoSSO_callback_uri"><?= __( 'eDemo_SSO callback URL:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
-							</th>
-							<td>
-								<input type='text' size='40' maxlength='40' name='EdemoSSO_callback_uri' id='EdemoSSO_callback_uri' value='<?= get_option('eDemoSSO_callback_uri') ?>' />
-								<p class="description"><?=__('Callback uri for communication with the SSO_server', eDemo_SSOauth::TEXTDOMAIN)?></p>
 							</td>
 						</tr>
 						<tr>
@@ -262,8 +250,17 @@ class eDemo_SSOauth_Admin extends eDemo_SSOauth_Base {
 								<label for="EdemoSSO_needed_assurances"><?= __( 'Needed assurances:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
 							</th>
 							<td>
-								<input type='text' size='16' maxlength='30' name='EdemoSSO_needed_assurances' id='EdemoSSO_needed_assurances' value='<?= get_option('EdemoSSO_needed_assurances'); ?>' />
+								<input type='text' size='60' maxlength='100' name='EdemoSSO_needed_assurances' id='EdemoSSO_needed_assurances' value='<?= get_option('EdemoSSO_needed_assurances'); ?>' />
 								<p class="description"><?= __( 'Comma separated list of assurances needed for allowing registering the user. Keep empty, if no assurance needed for registration.', eDemo_SSOauth::TEXTDOMAIN ) ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="EdemoSSO_terms_of_usege_page_url"><?= __( 'URL of the "Terms of usage" page:', eDemo_SSOauth::TEXTDOMAIN ) ?></label>
+							</th>
+							<td>
+								<input type='text' size='60' maxlength='100' name='EdemoSSO_terms_of_usege_page_url' id='EdemoSSO_terms_of_usege_page_url' value='<?= get_option('EdemoSSO_terms_of_usege_page_url'); ?>' />
+								<p class="description"><?= __( 'This page will be linked on the registration page to be able confirm it.', eDemo_SSOauth::TEXTDOMAIN ) ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -291,22 +288,22 @@ function show_SSO_user_profile( $user ) {
 		<?php }			
 		if ($this->has_user_SSO($user->ID)) {?> 
         <tr>
-            <th>SSO id</th>
+            <th><?= __( 'SSO id', eDemo_SSOauth::TEXTDOMAIN )?></th>
             <td><?= $this->get_user_SSO_id($user->ID) ?></td>
 		</tr>
 		<tr>
-            <th>SSO token</th>
+            <th><?= __( 'SSO token', eDemo_SSOauth::TEXTDOMAIN )?></th>
             <td><?= $this->get_refresh_token($user->ID) ?></td>
 		</tr>
 		<tr>			
-			<th>SSO assurances</th>
+			<th><?= __( 'SSO assurances', eDemo_SSOauth::TEXTDOMAIN )?></th>
             <td><?= get_user_meta($user->ID,eDemo_SSOauth::USERMETA_ASSURANCES, true) ?></td>
         </tr>
 		<tr>
 			<th></th>
 			<td>
 				<p>
-					<a class="button" href="<?=$this->get_action_link('refresh',$user->ID)?>">
+					<a class="button" href="<?=$this->get_SSO_action_link('refresh',$user->ID)?>">
 						<?= __( 'Refresh', eDemo_SSOauth::TEXTDOMAIN )?>
 					</a>
 				</p>
@@ -318,7 +315,7 @@ function show_SSO_user_profile( $user ) {
 			<th></th>
 			<td>
 				<p>
-					<a class="button" href="<?=$this->get_action_link('unbind',$user->ID)?>">
+					<a class="button" href="<?=$this->get_button_action('unbind',$user->ID)?>">
 						<?= __( 'Unbind', eDemo_SSOauth::TEXTDOMAIN )?>
 					</a>
 				</p>
@@ -332,7 +329,7 @@ function show_SSO_user_profile( $user ) {
 			<th></th>
 			<td>
 				<p><?__( "For this account hasn't SSO account binded", eDemo_SSOauth::TEXTDOMAIN )?><p>
-				<a class="button" href="<?=$this->get_SSO_action_link('binding',$user->ID)?>">
+				<a class="button" href="<?=$this->get_button_action('binding',$user->ID)?>">
 					<?= __( 'Bind SSO account', eDemo_SSOauth::TEXTDOMAIN )?>
 				</a>
 				<p class="description"><?= __('This will bind your account with an SSO account. If you are logged in to your SSO account, this goes automaticly. Otherwise you will be redirected to the SSO login page served by SSO Service. ', eDemo_SSOauth::TEXTDOMAIN )?></p>
@@ -354,12 +351,13 @@ function show_SSO_user_profile( $user ) {
 				<?= (($this->is_account_disabled($user->ID))?'checked ':'') ?>
 				<?= (($user->ID==get_current_user_id())?'disabled readonly':'') ?>
 				/>
-			<p class="description"><?= __('Set this to ban the user. User will can\'t login.', eDemo_SSOauth::TEXTDOMAIN) ?></p>
+			<p class="description"><?= __('Set this to ban the user. User will be unable to login.', eDemo_SSOauth::TEXTDOMAIN) ?></p>
 		</td>
     </tr>
     </table>	
 	<?php }
-	}	
+	}
+	
 	function update_user_profile() {
 		if ( !current_user_can( 'edit_users' ) ) return;
         global $user_id;
@@ -376,9 +374,11 @@ function show_SSO_user_profile( $user ) {
 			$this->enable_user_account( $user_id );
 		}
     }
+	
 	function disable_user_account( $user_id ){
 		update_user_option( $user_id, 'eDemoSSO_account_disabled', true, false );
 	}
+	
 	function enable_user_account( $user_id ) {
 		update_user_option( $user_id, 'eDemoSSO_account_disabled', false, false );
 	}

@@ -30,6 +30,38 @@ Domain Path: /languages
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+
+function op_register_menu_meta_box() {
+    add_meta_box(
+        'eDemo-SSOauth_menu_meta_box',
+        esc_html__( 'Login / Logout', 'text-domain' ),
+        'eDemo_SSOauth_render_menu_meta_box',
+        'nav-menus',
+        'side',
+        'core'
+        );
+}
+add_action( 'load-nav-menus.php', 'op_register_menu_meta_box' );
+ 
+function eDemo_SSOauth_render_menu_meta_box() {
+    // Metabox content
+    echo '<strong>Hi, I am MetaBox.</strong>';
+	?>
+	
+	<label class="menu-item-title"><input class="menu-item-checkbox" name="menu-item[-1][menu-item-object-id]" value="24" type="checkbox"> Blog</label>
+	<input class="menu-item-db-id" name="menu-item[-1][menu-item-db-id]" value="0" type="hidden">
+	<input class="menu-item-object" name="menu-item[-1][menu-item-object]" value="page" type="hidden">
+	<input class="menu-item-parent-id" name="menu-item[-1][menu-item-parent-id]" value="0" type="hidden">
+	<input class="menu-item-type" name="menu-item[-1][menu-item-type]" value="post_type" type="hidden">
+	<input class="menu-item-title" name="menu-item[-1][menu-item-title]" value="Blog" type="hidden">
+	<input class="menu-item-url" name="menu-item[-1][menu-item-url]" value="http://e.demokracia.rulez.org/blog/" type="hidden">
+	<input class="menu-item-target" name="menu-item[-1][menu-item-target]" value="" type="hidden">
+	<input class="menu-item-attr_title" name="menu-item[-1][menu-item-attr_title]" value="" type="hidden">
+	<input class="menu-item-classes" name="menu-item[-1][menu-item-classes]" value="" type="hidden">
+	<input class="menu-item-xfn" name="menu-item[-1][menu-item-xfn]" value="" type="hidden">
+<input class="button-secondary submit-add-to-menu right" value="Hozzáadás a menühöz" name="add-post-type-menu-item" id="submit-eDemo-SSOauth-menu-item" type="submit">
+	<?php
+}
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-plugin-name-activator.php

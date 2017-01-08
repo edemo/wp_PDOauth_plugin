@@ -57,7 +57,7 @@ function SSO(test) {
 
 	SSO.prototype.callForMessage = function(wpNonce, container) {
 		this.container=container || 'modalwindow';
-		this.ajaxget('/sso_callback?_wpnonce='+wpNonce+'&SSO_action=get_message', this.messageCallback)
+		this.ajaxget('/wp-admin/admin-ajax.php?_wpnonce='+wpNonce+'&action=eDemoSSO_get_message', this.messageCallback)
 	}
 	
 	SSO.prototype.messageCallback = function(status, text, xml) {
@@ -71,6 +71,41 @@ function SSO(test) {
 			container.innerHTML='<p class="notice">'+message.text+'</p>'
 		}
 	}
+	
+	SSO.prototype.button_click = function(target_url){
+		var my_iframe=document.createElement("iframe")
+		var container=jQuery("#eDemoSSO_message_frame")
+		jQuery(container).append(my_iframe)
+		my_iframe.onload= function(){
+			try {
+				this.contentWindow.document
+			}
+			catch(err) {
+				jQuery(container).show()
+				this.height="500px";
+			}
+		}
+		my_iframe.width="370px";
+		my_iframe.style.border="none";
+		my_iframe.src=target_url; 
+	}
+	
+	var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+	var eventer = window[eventMethod];
+	var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+	eventer( messageEvent, function(e) {
+		var key = e.message ? "message" : "data";
+		switch (e[key]) {
+			case "reload":
+				if ( -1 == window.location.href.indexOf("wp-login.php") ) window.location.reload();
+				else window.location.href=window.location.origin;
+				break;
+			case "hide":
+				jQuery("#eDemoSSO_message_frame").hide('slow');
+		}
+	},false);
+
 }
 
 eDemo_SSO = new SSO();
+
