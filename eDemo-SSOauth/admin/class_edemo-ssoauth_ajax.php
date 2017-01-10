@@ -51,7 +51,7 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 		$this->com = new eDemo_SSOauth_com( $plugin_name, $version );
 	}
 	function http_origin($origin){
-		return "http://patyicivil.hu";
+		return "https://szabadszavazas.hu";
 	}
 
 	function render_the_reloader_message(){
@@ -82,6 +82,7 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 	}
 	
 	function wp_ajax_eDemoSSO_register (){
+		error_log('register');
 		header_remove( 'X-Frame-Options' );
 		$this->do_action("register");
 		$this->render_the_reloader_message();
@@ -234,7 +235,7 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 					exit;
 					break;
 			}
-		}
+		} else error_log("szar a nonce");
 	}
 	/*
 	* Registering the new user

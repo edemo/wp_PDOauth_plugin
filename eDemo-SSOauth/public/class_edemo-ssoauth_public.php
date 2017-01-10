@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 /**
  * The public-facing functionality of the plugin.
@@ -75,6 +74,7 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		$this->version = $version;
 		parent::__construct( );
 		$this->com = new eDemo_SSOauth_com( $plugin_name, $version );
+		add_shortcode( 'sso_login_button', array( $this, 'shortcode_login_button' ) );
 	}
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
@@ -238,6 +238,24 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->data->user_login );
 		return get_current_user_id()==$user->ID;
+	}
+	/*
+	* Creates an <a> tag linked to sso login page
+	*
+	* @since 0.0.2
+	* @access   public
+	* @param	array  	$atts			array of assurances coming from the SSO service
+	*			string	$content		the content of the tag	
+	*
+	* @return	string	$user_role		the user role
+	*/
+	function shortcode_login_button($atts, $content = null) {
+		$vars=shortcode_atts( array (
+				"logged_in_class" => "",
+				"logged_out_class" => "",
+				), $atts);
+		$class=esc_attr(is_user_logged_in()?$vars['logged_in_class']:$vars['logged_out_class']);
+		return '<a class="'.$class.'" href="javascript:void(0)" onclick="eDemo_SSO.button_click(\''.$this->get_SSO_action_link("login").'\')">'.$content.'</a>';
 	}
 }
 ?>
