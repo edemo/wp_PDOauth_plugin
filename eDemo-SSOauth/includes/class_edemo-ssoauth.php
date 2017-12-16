@@ -41,6 +41,7 @@ class eDemo_SSOauth {
 	const SSO_USER_URI	= '/ada/v1/users/me';			//com
 	const SSO_SITE_URL	= '/login.html';				//widget
 	const CALLBACK_URI 	= '/wp-admin/admin-ajax.php';	//com, base
+	const SSO_LOGOUT_URL = '/logout.html';				//public
 	
 	const MESSAGE_FRAME_ID = 'eDemoSSO_message_frame';  // the id of the message iframe tag
 	

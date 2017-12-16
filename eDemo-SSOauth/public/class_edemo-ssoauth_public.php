@@ -82,7 +82,12 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	 * @since    0.0.1
 	 */
 	public function enqueue_scripts() {
+
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/edemo-ssoauth_public.js', array( ), $this->version, false );
+		wp_add_inline_script( $this->plugin_name,
+			'var eDemoSSO_ada_logout_url="' . $this->com->serviceURI.eDemo_SSOauth::SSO_LOGOUT_URL . '",
+			eDemoSSO_wp_logout_url="' . wp_logout_url( get_permalink() ) . '";
+			eDemo_SSO = new SSO();' );
 	}
 	
 	public function enqueue_styles() {
@@ -121,7 +126,13 @@ class eDemo_SSOauth_Public extends eDemo_SSOauth_Base {
 	#filtered by get_footer
 	function the_message_frame(){
 ?>
-		<div id="<?= eDemo_SSOauth::MESSAGE_FRAME_ID ?>" class="message-frame"></div>
+		<div id="<?= eDemo_SSOauth::MESSAGE_FRAME_ID ?>" class="message-frame">	
+			<div id="iframe-container-close-button" style="height: 20px; margin-right: 5px; text-align: right;" onclick="eDemo_SSO.xOnClick()">
+EDE
+				<img src="<?php echo str_replace( "/public","",plugin_dir_url(__FILE__)) ?>/../img/x15-15.png" style="display: unset; cursor: pointer;">
+			</div>
+		</div>
+		<div style="display: none"><a id="logout_url_container" href="<?php  echo wp_logout_url( get_permalink() )?>" target="_blank"></a></div>
 <?php
 	}
 	

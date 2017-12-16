@@ -75,7 +75,7 @@ class eDemo_SSOauth_com {
 	 * @access   private
 	 * @var      string    $serviceURI    the domain name of the sso service option stored into options db
 	 */	
-	private $serviceURI;
+	public $serviceURI;
 	
 	/**
 	 * Initialize the class and set its properties.

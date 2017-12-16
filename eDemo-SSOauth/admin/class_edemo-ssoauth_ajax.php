@@ -58,8 +58,13 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 		echo '<html>
 				<head>
 				<script type="text/javascript">
-				parent.postMessage("hide","*");
-				parent.postMessage("reload","*");
+				if (window.location != window.parent.location) {
+					parent.postMessage("hide","*");
+					parent.postMessage("reload","*");
+				}
+				else{
+					window.location.href="https://szabadszavazas.hu"
+				}
 				</script>
 				</head>
 				<body>

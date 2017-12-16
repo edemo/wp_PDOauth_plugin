@@ -1,6 +1,7 @@
 div.message-frame {
     top: 100px;
 	width: 370px;
+	height: 550px;
     right: 0;
     left: 0;
     margin: auto;
@@ -13,7 +14,44 @@ div.message-frame {
 	-webkit-box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
 	-moz-box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
 	box-shadow: 6px 12px 40px 1px rgba(0,0,0,0.36);
-	background-color: rgba(243, 249, 230, 0.92)
+	background-color: rgba(243, 249, 230, 0.92);
+	z-index: 5000;
+	padding-bottom: 30px;
+
 }
 
+#login-iframe {
+	width: 100%;
+	height: 100%;
+	margin-bottom: 10px;
+	border: none;	
+}
 
+@media screen and (max-height: 650px) {
+    div.message-frame {
+		position: fixed;
+        top: 0px;
+
+    }
+}
+
+@media screen and (max-height: 550px) {
+    div.message-frame {
+		position: fixed;
+		height: auto;
+        top: 0px;
+		bottom: 0px;
+		padding-bottom: 15px;
+    }
+}
+
+@media screen and (max-width: 370px) {
+    div.message-frame {
+		position: fixed;
+		width: auto;
+    }
+}
+
+.notransform {
+	text-transform: none;
+}
