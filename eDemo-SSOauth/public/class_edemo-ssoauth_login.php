@@ -67,7 +67,11 @@ class eDemo_SSOauth_Login extends eDemo_SSOauth_Base {
 	 * @since    0.0.1
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/edemo-ssoauth_public.js', array( ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/edemo-ssoauth_public.js', array('jquery' ), $this->version, false );
+                wp_add_inline_script( $this->plugin_name,
+                        'var eDemoSSO_ada_logout_url="' . $this->com->serviceURI.eDemo_SSOauth::SSO_LOGOUT_URL . '",
+                        eDemoSSO_wp_logout_url="' . wp_logout_url( get_permalink() ) . '";
+                        eDemo_SSO = new SSO();' );
 	}
 	
 	public function enqueue_styles() {
