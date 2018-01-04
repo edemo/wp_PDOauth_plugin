@@ -51,7 +51,7 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 		$this->com = new eDemo_SSOauth_com( $plugin_name, $version );
 	}
 	function http_origin($origin){
-		return "https://szabadszavazas.hu";
+		return "https://elektoriparlament.hu";
 	}
 
 	function render_the_reloader_message(){
@@ -63,7 +63,7 @@ class eDemo_SSOauth_Ajax extends eDemo_SSOauth_Base {
 					parent.postMessage("reload","*");
 				}
 				else{
-					window.location.href="https://szabadszavazas.hu"
+					window.location.href="https://elektoriparlament.hu"
 				}
 				</script>
 				</head>
